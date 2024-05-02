@@ -11,7 +11,7 @@
         return res.status(code).json({
             message: message ,
             code: code ,
-            data:data,
+            data,
             metaData:metaData 
         });
      },

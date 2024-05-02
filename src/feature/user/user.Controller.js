@@ -55,6 +55,9 @@ module.exports = {
     findOne: async (req, res) => {
         try {
             const user = await UserService.findById(req?.params?.id);
+            if(!user) {
+                return errorResponse(res, "user not found", 404, null)
+            }
             return successResponse(res, message = "user fetch successfully ", 200, user)
         } catch (error) {
             return errorResponse(res, error.message, 500, null)
@@ -71,6 +74,11 @@ module.exports = {
             const validate = updateUserSchema.validate(req.body);
             if (validate.error) {
                 return errorResponse(res, validate.error.message, 400, null)
+            }
+            // checking if user already exists or not 
+            const user = await UserService.findById(req?.body?.id);
+            if(!user) {
+                return errorResponse(res, "user not found", 404, null)
             }
             const result = await userService.updateUser(req.body)
             if (result?.errmsg) {

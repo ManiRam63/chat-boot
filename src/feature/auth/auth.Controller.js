@@ -1,5 +1,4 @@
 const { errorResponse, successResponse } = require('../../utils/responseIntercepter');
-const userService = require('../user/user.Service');
 const { loginSchema } = require('./auth.Schema');
 const authService = require('./auth.Service');
 module.exports = {

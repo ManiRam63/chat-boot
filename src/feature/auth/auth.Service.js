@@ -6,7 +6,7 @@ module.exports = {
         let result  =  {}
         try {
         const { email , password  } = object
-         const user =  await UserService.findByAttribute({ email: email });
+         const user =  await UserService.findByAttribute({ email: email , isDeleted: false });
          if(!user){
             result.errormsg = "user not found!";
             return result;
