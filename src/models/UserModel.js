@@ -4,7 +4,7 @@ const schema = new mongoose.Schema({
     _id: {
         type: String,
         required:true,
-        default: nanoid(20)
+        default: () => nanoid(),
     },
     email: {
         type: String,
