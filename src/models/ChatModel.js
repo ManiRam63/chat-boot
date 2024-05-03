@@ -8,7 +8,15 @@ const schema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    userId: {
+    senderId: {
+        type: String,
+        required: true,
+    },
+    message:{
+      type: String,
+      required: true,
+    },
+    messageType: {
         type: String,
         required: true,
     },
@@ -16,10 +24,14 @@ const schema = new mongoose.Schema({
     type: Date,
     default: Date.now()
     },
+    updateddAt: {
+        type: Date,
+        default: Date.now()
+    },
     isDeleted:{
         type: Boolean,
         default: false
     }
 });
-const roomMember = new mongoose.model('RoomMember', schema);
+const roomMember = new mongoose.model('chat', schema);
 module.exports = roomMember;

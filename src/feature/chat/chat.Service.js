@@ -1,12 +1,11 @@
 const RoomModel = require('../../models/RoomModel');
 const RoomMembersModel = require('../../models/RoomMemberModel');
-const { ROOM } = require('../../utils/responseMessage');
+const ChatModel = require('../../models/ChatModel');
 module.exports = {
-    create: async ( userId , data) => {
+    createChat: async ( data) => {
         try {
-        data.createdBy = userId;
-        const room = new RoomModel(data);
-        return await room.save();
+        const chat = new ChatModel(data);
+        return await chat.save();
         } catch (error) {
             return error;
         }
@@ -18,7 +17,7 @@ module.exports = {
      */
     findById: async (_id) => {
         try {
-            return await RoomModel.findOne({ _id: _id }).lean()
+            return await ChatModel.findOne({ _id: _id }).lean()
         } catch (error) {
             return error
         }
@@ -30,7 +29,7 @@ module.exports = {
      */
     findByAttribute: async (attributes) => {
         try {
-          const user = await RoomModel.findOne(attributes).lean()
+          const user = await ChatModel.findOne(attributes).lean()
             return user
         } catch (error) {
             return error
@@ -45,9 +44,9 @@ module.exports = {
         let result = {}
         try {
             const { _id, ...rest } = requestObj;
-            const data = await RoomModel.findByIdAndUpdate(_id, rest ,  {new: true} ).lean()
+            const data = await ChatModel.findByIdAndUpdate(_id, rest ,  {new: true} ).lean()
             if (!data) {
-                result.errmsg = "Room not found!"
+                result.errmsg = "chat not found!"
                 return result
             } else {
                 result.data = data
@@ -66,9 +65,9 @@ module.exports = {
     deleteRoom: async (id) => {
         let result = {}
         try {
-            const data = await RoomModel.findByIdAndUpdate(id, { isDeleted: true }).lean()
+            const data = await ChatModel.findByIdAndUpdate(id, { isDeleted: true }).lean()
             if (!data) {
-                result.errmsg = ROOM.SOMETHIG_WENT_WRONG
+                result.errmsg = "Something went wrong try again !"
                 return result
             } else {
                 result = []
@@ -84,8 +83,8 @@ module.exports = {
      * @param {*} body 
      * @returns 
      */
-    list: async (body) => {
-        const { limit = 10, sort, page = 1, search = '', order } = body
+    userChat: async (objectData) => {
+        const { limit = 10, sort, page = 1, search = '', order , roomId  } = objectData
         const offset = limit * (page - 1) || 0
         let result ={}
         try {
@@ -94,45 +93,20 @@ module.exports = {
             if (sort) {
                 sortObj[sort] = +orderNum
             } else {
-                sortObj['name'] = 1
+                sortObj['message'] = 1
             }
 
             const match = []
             match.push({
-                isDeleted: { $ne: true },
+                roomId: roomId
             })
-            let searchval =''
-            if (search) {
-               searchval = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
-            }
-            match.push({
-                $or: [
-                    {
-                        name: {
-                            $regex: searchval,
-                            $options: 'i',
-                        },
-                    },
-                    {
-                        roomType: {
-                            $regex: searchval,
-                            $options: 'i',
-                        },
-                    },
-                ],
-            })
-
+            
             const where = {
                 $and: match,
             }
             const dataCond = [{ $sort: sortObj }, { $skip: +offset }, { $limit: +limit }]
             const aggregation = [
                 { $match: where },
-                {
-                    $project: {
-                        password: 0,
-                    },
-                },
                 {
                     $facet: {
                         metadata: [
@@ -145,39 +119,20 @@ module.exports = {
                 },
             ]
 
-            const roomList = await RoomModel.aggregate(aggregation, {
+            const chatList = await ChatModel.aggregate(aggregation, {
                 collation: { locale: 'en' },
             })
             const metaData = {
-                totalRecords: roomList[0]?.metadata[0]?.total || 0,
+                totalRecords: chatList[0]?.metadata[0]?.total || 0,
                 currentPage: page,
                 recordPerPage: limit,
             }
-
-            result.data = roomList.length ? roomList[0].data : []
+            result = chatList.length ? chatList[0].data : []
             result.metaData = metaData
             return result
         } catch (e) {
             result.errmsg = e?.message
             return result
-        }
-    },
-/**
- * @description: this function is used to to add user to room
- * @param {*} dataObj 
- * @returns 
- */
-    addRoomMember:async ( dataObj )=>{
-        try {
-            const member = new RoomMembersModel(dataObj);
-           const result = await member.save();
-           if(!result){
-              result.errmsg = ROOM.SOME_ERROR_OCCURRED
-              return result;
-           }
-           return result;
-        } catch (error) {
-            return error
         }
     },
 
@@ -190,20 +145,6 @@ module.exports = {
         try {
             const user = await RoomMembersModel.findOne(attributes).lean()
             return user
-        } catch (error) {
-            return error
-        }
-    },
-
-    /**
- * @description : this function is used to delete user from the room 
- * @param {*} data 
- * @returns 
- */
-    deleteMemberFromRoom: async (attributes) => {
-        try {
-            const deleted = await RoomMembersModel.deleteOne(attributes).lean()
-            return deleted
         } catch (error) {
             return error
         }

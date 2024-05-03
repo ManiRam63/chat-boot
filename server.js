@@ -5,9 +5,21 @@ const app = express();
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
 const dbConfig = require('./config/database.config.js');
+const path = require('path');
+const http = require('http');
 dotenv.config()
 app.use(bodyParser.urlencoded({ extended: true }))
 app.use(bodyParser.json())
+app.use(express.static(path.resolve("./public")));
+app.use('/api',routes)
+const socketapi = require("../chat-boot/src/feature/socket/socket.js");
+const server = http.createServer(app);
+// socketapi.io.attach(server); 
+socketapi.initialize(server);
+app.get('/', function (req, res) {
+    return res.sendFile("/public/index.html")
+})
+// create mongoose instance//
 mongoose.Promise = global.Promise;
 mongoose.connect(dbConfig.url, {
     // useNewUrlParser: true
@@ -17,7 +29,6 @@ mongoose.connect(dbConfig.url, {
     console.log('Could not connect to the database', err);
     process.exit();
 });
-app.use('/api',routes)
-app.listen(3006, () => {
+server.listen(3006, () => {
     console.log("Server is listening on port 3006");
 });
