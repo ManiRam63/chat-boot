@@ -5,11 +5,13 @@ const schema = new mongoose.Schema({
         default: new mongoose.Types.ObjectId(),
       },
     roomId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Room',
         required: true,
     },
     senderId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
     message:{
@@ -23,6 +25,11 @@ const schema = new mongoose.Schema({
     createdAt: {
     type: Date,
     default: Date.now()
+    },
+    isNotSeen:{
+        type: [mongoose.Schema.Types.ObjectId],
+        ref: 'users',
+        default: []
     },
     updateddAt: {
         type: Date,

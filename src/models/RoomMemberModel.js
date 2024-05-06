@@ -5,11 +5,13 @@ const schema = new mongoose.Schema({
         default: new mongoose.Types.ObjectId(),
       },
     roomId: {
-        type: String,
+        type:  mongoose.Schema.Types.ObjectId,
+        ref: 'Room',
         required: true,
     },
     userId: {
-        type: String,
+        type:  mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
     createdAt: {

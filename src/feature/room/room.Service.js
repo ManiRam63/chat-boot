@@ -1,5 +1,6 @@
 const RoomModel = require('../../models/RoomModel');
 const RoomMembersModel = require('../../models/RoomMemberModel');
+const ObjectId = require('mongodb').ObjectId;
 const { ROOM } = require('../../utils/responseMessage');
 module.exports = {
     create: async ( userId , data) => {
@@ -16,9 +17,9 @@ module.exports = {
      * @param {*} _id 
      * @returns 
      */
-    findById: async (_id) => {
+    findById: async (id) => {
         try {
-            return await RoomModel.findOne({ _id: _id }).lean()
+            return await RoomModel.findOne({ _id:id }).lean()
         } catch (error) {
             return error
         }
@@ -220,7 +221,7 @@ module.exports = {
             const aggregation = [
                 {
                   $match: {
-                    roomId: { $eq: roomId },
+                    roomId: { $eq: ObjectId(roomId)},
                     isDeleted: { $ne: true }
                   }
                 },

@@ -18,8 +18,9 @@ const schema = new mongoose.Schema({
     default: Date.now()
     },
     createdBy: {
-        type: String,
-        required:true
+        type: mongoose.Schema.Types.ObjectId,
+        required:true,
+        ref: "User"
     },
     isDeleted:{
         type: Boolean,

@@ -212,6 +212,10 @@ module.exports = {
             if (validate.error) {
                 return errorResponse(res, validate.error.message, 400, null)
             }
+            const room = await RoomService.findById(req?.query?.roomId);
+            if (!room) {
+                return errorResponse(res, ROOM.ROOM_NOT_FOUND, 404, null)
+            }
             const users = await RoomService.findMemberOfRoom(req.query)
             if(!users){
                 return successResponse(res, USER.USER_FETCH_SUCCESSFULLY, 200 , [])

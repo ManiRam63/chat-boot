@@ -1,11 +1,11 @@
-const RoomModel = require('../../models/RoomModel');
 const RoomMembersModel = require('../../models/RoomMemberModel');
 const ChatModel = require('../../models/ChatModel');
+const ObjectId = require('mongodb').ObjectId;
 module.exports = {
-    createChat: async ( data) => {
+    createChat: async (data) => {
         try {
-        const chat = new ChatModel(data);
-        return await chat.save();
+            const chat = new ChatModel(data);
+            return await chat.save();
         } catch (error) {
             return error;
         }
@@ -29,7 +29,7 @@ module.exports = {
      */
     findByAttribute: async (attributes) => {
         try {
-          const user = await ChatModel.findOne(attributes).lean()
+            const user = await ChatModel.findOne(attributes).lean()
             return user
         } catch (error) {
             return error
@@ -44,7 +44,7 @@ module.exports = {
         let result = {}
         try {
             const { _id, ...rest } = requestObj;
-            const data = await ChatModel.findByIdAndUpdate(_id, rest ,  {new: true} ).lean()
+            const data = await ChatModel.findByIdAndUpdate(_id, rest, { new: true }).lean()
             if (!data) {
                 result.errmsg = "chat not found!"
                 return result
@@ -84,9 +84,9 @@ module.exports = {
      * @returns 
      */
     userChat: async (objectData) => {
-        const { limit = 10, sort, page = 1, search = '', order , roomId  } = objectData
+        const { limit = 10, sort, page = 1, search = '', order, roomId } = objectData
         const offset = limit * (page - 1) || 0
-        let result ={}
+        let result = {}
         try {
             const sortObj = {}
             const orderNum = order === 'asc' ? 1 : -1
@@ -100,7 +100,7 @@ module.exports = {
             match.push({
                 roomId: roomId
             })
-            
+
             const where = {
                 $and: match,
             }
@@ -136,11 +136,11 @@ module.exports = {
         }
     },
 
-/**
- * @description : this function is used to find the room via attributes 
- * @param {*} data 
- * @returns object of room data || {}
- */
+    /**
+     * @description : this function is used to find the room via attributes 
+     * @param {*} data 
+     * @returns object of room data || {}
+     */
     findMemberInRoom: async (attributes) => {
         try {
             const user = await RoomMembersModel.findOne(attributes).lean()
@@ -155,54 +155,54 @@ module.exports = {
      * @returns 
      */
     findMemberOfRoom: async (body) => {
-        let result ={}
+        let result = {}
         try {
             const { roomId } = body
             const aggregation = [
                 {
-                  $match: {
-                    roomId: { $eq: roomId },
-                    isDeleted: { $ne: true }
-                  }
+                    $match: {
+                        roomId: new ObjectId(roomId),
+                        isDeleted: false,
+                    }
                 },
                 {
-                  $lookup: {
-                    from: 'users',
-                    localField: 'userId',
-                    foreignField: '_id',
-                    pipeline: [
-                        {
-                          $project: {
-                            _id: 1,
-                            username: 1,
-                            firstname: 1,
-                            lastname: 1,
-                            email:1,
-                            isGuest:1,
-                            status:1,
-                          },
-                        },
-                      ],
-                    as: 'users'
-                  }
+                    $lookup: {
+                        from: 'users',
+                        localField: 'userId',
+                        foreignField: '_id',
+                        pipeline: [
+                            {
+                                $project: {
+                                    _id: 1,
+                                    username: 1,
+                                    firstname: 1,
+                                    lastname: 1,
+                                    email: 1,
+                                    isGuest: 1,
+                                    status: 1,
+                                },
+                            },
+                        ],
+                        as: 'users'
+                    }
                 },
                 {
-                  $lookup: {
-                    from: 'rooms',
-                    localField: 'roomId',
-                    foreignField: '_id',
-                    as: 'rooms'
-                  }
+                    $lookup: {
+                        from: 'rooms',
+                        localField: 'roomId',
+                        foreignField: '_id',
+                        as: 'rooms'
+                    }
                 },
                 { $unwind: { path: '$rooms' } },
                 { $unwind: { path: '$users' } },
                 {
-                  $group: {
-                    _id: '$roomId',
-                    roomName: { $first: '$rooms.name' },
-                    roomId: { $first: '$rooms._id' },
-                    members: { $addToSet: '$users' }
-                  }
+                    $group: {
+                        _id: '$roomId',
+                        roomName: { $first: '$rooms.name' },
+                        roomId: { $first: '$rooms._id' },
+                        members: { $addToSet: '$users' }
+                    }
                 },
             ]
             const memberList = await RoomMembersModel.aggregate(aggregation, {
@@ -215,4 +215,20 @@ module.exports = {
             return result
         }
     },
+    /**
+     * @description : this function is used to remove the members frm isnotseer array list
+     * @param {*} messageObj 
+     */
+    isSeenMessage: async (messageObj)=>{
+        try {
+         const result =  await ChatModel.updateMany(
+            { roomId: new ObjectId(messageObj.roomId)}, 
+            { $pull: { "isNotSeen": messageObj?.userId }},
+            );
+        return result
+
+        } catch (error) {
+         return error    
+        }
+    }
 }
