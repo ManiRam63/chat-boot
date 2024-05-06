@@ -1,17 +1,17 @@
 const mongoose = require('mongoose');
-const { nanoid } =  require('nanoid');
 const schema = new mongoose.Schema({
     _id: {
-        type: String,
-        required:true,
-        default: () => nanoid(),
-    },
+        type: mongoose.Schema.Types.ObjectId,
+        default: new mongoose.Types.ObjectId(),
+      },
     roomId: {
-        type: String,
+        type:  mongoose.Schema.Types.ObjectId,
+        ref: 'Room',
         required: true,
     },
     userId: {
-        type: String,
+        type:  mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
     },
     createdAt: {

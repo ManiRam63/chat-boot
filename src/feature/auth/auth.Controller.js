@@ -1,4 +1,5 @@
 const { errorResponse, successResponse } = require('../../utils/responseIntercepter');
+const { AUTH } = require('../../utils/responseMessage');
 const { loginSchema } = require('./auth.Schema');
 const authService = require('./auth.Service');
 module.exports = {
@@ -20,10 +21,10 @@ module.exports = {
             const result = await authService.signIn(req.body)
             if (result?.errormsg || result?.message) {
 
-            let message = result.message ? result.message : result?.errormsg ? result?.errormsg : "Some error occurred"
+            let message = result.message ? result.message : result?.errormsg ? result?.errormsg : AUTH.SOME_ERROR_OCCURRED
                return errorResponse(res,message , 401  , null)
             }
-            return successResponse(res , message = "login successfully" , 200 , result)
+            return successResponse(res , message = AUTH.LOGIN_SUCCESSFULLY , 200 , result)
 
         } catch (error) {
 

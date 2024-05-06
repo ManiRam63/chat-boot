@@ -1,6 +1,7 @@
 const RoomModel = require('../../models/RoomModel');
 const RoomMembersModel = require('../../models/RoomMemberModel');
-const { deleteMember } = require('./room.Schema');
+const ObjectId = require('mongodb').ObjectId;
+const { ROOM } = require('../../utils/responseMessage');
 module.exports = {
     create: async ( userId , data) => {
         try {
@@ -16,9 +17,9 @@ module.exports = {
      * @param {*} _id 
      * @returns 
      */
-    findById: async (_id) => {
+    findById: async (id) => {
         try {
-            return await RoomModel.findOne({ _id: _id }).lean()
+            return await RoomModel.findOne({ _id:id }).lean()
         } catch (error) {
             return error
         }
@@ -68,7 +69,7 @@ module.exports = {
         try {
             const data = await RoomModel.findByIdAndUpdate(id, { isDeleted: true }).lean()
             if (!data) {
-                result.errmsg = "Something went wrong try again !"
+                result.errmsg = ROOM.SOMETHIG_WENT_WRONG
                 return result
             } else {
                 result = []
@@ -172,7 +173,7 @@ module.exports = {
             const member = new RoomMembersModel(dataObj);
            const result = await member.save();
            if(!result){
-              result.errmsg = "Error updating room members";
+              result.errmsg = ROOM.SOME_ERROR_OCCURRED
               return result;
            }
            return result;
@@ -220,7 +221,7 @@ module.exports = {
             const aggregation = [
                 {
                   $match: {
-                    roomId: { $eq: roomId },
+                    roomId: { $eq: ObjectId(roomId)},
                     isDeleted: { $ne: true }
                   }
                 },

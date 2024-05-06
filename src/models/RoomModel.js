@@ -1,11 +1,9 @@
 const mongoose = require('mongoose');
-const { nanoid } =  require('nanoid');
 const schema = new mongoose.Schema({
     _id: {
-        type: String,
-        required:true,
-        default: () => nanoid(),
-    },
+        type: mongoose.Schema.Types.ObjectId,
+        default: new mongoose.Types.ObjectId(),
+      },
     name: {
         type: String,
         required: false,
@@ -20,8 +18,9 @@ const schema = new mongoose.Schema({
     default: Date.now()
     },
     createdBy: {
-        type: String,
-        required:true
+        type: mongoose.Schema.Types.ObjectId,
+        required:true,
+        ref: "User"
     },
     isDeleted:{
         type: Boolean,
