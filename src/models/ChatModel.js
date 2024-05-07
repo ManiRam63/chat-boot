@@ -1,9 +1,5 @@
 const mongoose = require('mongoose');
 const schema = new mongoose.Schema({
-    _id: {
-        type: mongoose.Schema.Types.ObjectId,
-        default: new mongoose.Types.ObjectId(),
-      },
     roomId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Room',

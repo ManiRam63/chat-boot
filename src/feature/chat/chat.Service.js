@@ -1,6 +1,7 @@
 const RoomMembersModel = require('../../models/RoomMemberModel');
 const ChatModel = require('../../models/ChatModel');
-const ObjectId = require('mongodb').ObjectId;
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId
 module.exports = {
     createChat: async (data) => {
         try {
@@ -95,18 +96,13 @@ module.exports = {
             } else {
                 sortObj['message'] = 1
             }
-
-            const match = []
-            match.push({
-                roomId: roomId
-            })
-
-            const where = {
-                $and: match,
-            }
             const dataCond = [{ $sort: sortObj }, { $skip: +offset }, { $limit: +limit }]
             const aggregation = [
-                { $match: where },
+                {
+                    $match:{
+                    roomId : new ObjectId(roomId)
+                    }
+                },
                 {
                     $facet: {
                         metadata: [

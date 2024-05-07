@@ -1,5 +1,5 @@
-const UserModel = require('../../models/UserModel');
 const { errorResponse, successResponse } = require('../../utils/responseIntercepter');
+const { USER } = require('../../utils/responseMessage');
 const { createUserSchema, updateUserSchema } = require('./user.Schema');
 const userService = require('./user.Service');
 const UserService = require('./user.Service');
@@ -21,11 +21,11 @@ module.exports = {
 
             if (result?.errmsg || result?.message) {
 
-                let message = result.message ? result.message : result?.errmsg ? result?.errmsg : "Some error occurred while creating user"
+                let message = result.message ? result.message : result?.errmsg ? result?.errmsg : USER.SOME_ERROR_OCCURRED
                 return errorResponse(res, message, 401, null)
 
             } else {
-                return successResponse(res, message = "User created successfully.", 200, result)
+                return successResponse(res, USER.USER_CREATED_SUCCESSFULLY, 200, result)
             }
 
         } catch (error) {
@@ -41,7 +41,7 @@ module.exports = {
         try {
             const { data, metaData } = await userService.list(req?.query)
 
-            return successResponse(res, message = "users fetch successfully ", 200, data, metaData)
+            return successResponse(res, USER.USER_FETCH_SUCCESSFULLY, 200, data, metaData)
         } catch (error) {
             return errorResponse(res, error.message, 500, null)
         }
@@ -56,9 +56,9 @@ module.exports = {
         try {
             const user = await UserService.findById(req?.params?.id);
             if(!user) {
-                return errorResponse(res, "user not found", 404, null)
+                return errorResponse(res, USER.USER_NOT_FOUND, 404, null)
             }
-            return successResponse(res, message = "user fetch successfully ", 200, user)
+            return successResponse(res, USER.USER_FETCH_SUCCESSFULLY, 200, user)
         } catch (error) {
             return errorResponse(res, error.message, 500, null)
         }
@@ -78,14 +78,14 @@ module.exports = {
             // checking if user already exists or not 
             const user = await UserService.findById(req?.body?.id);
             if(!user) {
-                return errorResponse(res, "user not found", 404, null)
+                return errorResponse(res, USER.USER_NOT_FOUND, 404, null)
             }
             const result = await userService.updateUser(req.body)
             if (result?.errmsg) {
-                let message = result?.errmsg ? result?.errmsg : " Some error occurred while updateing the user "
+                let message = result?.errmsg ? result?.errmsg : USER.SOME_ERROR_OCCURRED
                 return errorResponse(res, message, 401, null)
             } else {
-                return successResponse(res, message = " User updated successfully.", 200, result)
+                return successResponse(res, USER.USER_UPDATED_SUCCESSFULLY, 200, result)
             }
         } catch (error) {
             return errorResponse(res, error?.message, 401, null)
@@ -101,18 +101,18 @@ module.exports = {
         try {
             const id = req?.params?.id;
             if (!id) {
-                return errorResponse(res, "user id required", 400, null)
+                return errorResponse(res, USER.USER_ID_REQUIRED, 400, null)
             }
             const user = await UserService.findById(id);
             if (!user) {
-                return errorResponse(res, "user not found", 404, null)
+                return errorResponse(res, USER.USER_NOT_FOUND, 404, null)
             }
             const result = await userService.deleteUser(id)
             if (result?.errmsg) {
-                let message = result?.errmsg ? result?.errmsg : " Some error occurred while deleting the user "
+                let message = result?.errmsg ? result?.errmsg : USER.SOME_ERROR_OCCURRED
                 return errorResponse(res, message, 401, null)
             } else {
-                return successResponse(res, message = " User deleted successfully.", 200, result)
+                return successResponse(res, USER.USER_DELETED_SUCCESSFULLY, 200, result)
             }
 
         } catch (error) {
