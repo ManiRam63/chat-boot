@@ -1,6 +1,7 @@
 const RoomModel = require('../../models/RoomModel');
 const RoomMembersModel = require('../../models/RoomMemberModel');
-const ObjectId = require('mongodb').ObjectId;
+const mongoose = require('mongoose');
+const ObjectId = mongoose.Types.ObjectId
 const { ROOM } = require('../../utils/responseMessage');
 module.exports = {
     create: async ( userId , data) => {
@@ -100,7 +101,7 @@ module.exports = {
 
             const match = []
             match.push({
-                isDeleted: { $ne: true },
+                isDeleted: false,
             })
             let searchval =''
             if (search) {
@@ -221,8 +222,8 @@ module.exports = {
             const aggregation = [
                 {
                   $match: {
-                    roomId: { $eq: ObjectId(roomId)},
-                    isDeleted: { $ne: true }
+                    roomId: new ObjectId(roomId),
+                    isDeleted: false
                   }
                 },
                 {
@@ -269,7 +270,7 @@ module.exports = {
                 collation: { locale: 'en' },
             })
             result = memberList.length ? memberList : []
-            return result
+            return result[0]
         } catch (e) {
             result.errmsg = e?.message
             return result

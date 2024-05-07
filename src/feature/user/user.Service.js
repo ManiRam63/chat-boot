@@ -1,5 +1,6 @@
 const UserModel = require('../../models/UserModel');
 const bcrypt = require('bcrypt');
+const { USER } = require('../../utils/responseMessage');
 const salt = bcrypt.genSaltSync(16);
 module.exports = {
     create: async (data) => {
@@ -9,7 +10,9 @@ module.exports = {
                 data.password = bcrypt.hashSync(password, salt);
             }
             const user = new UserModel(data);
-            return await user.save();
+             const result =  await user.save();
+             delete result?._doc?.password;
+             return result
         } catch (error) {
             return error;
         }
@@ -51,7 +54,7 @@ module.exports = {
             const { _id, ...rest } = requestObj;
             const data = await UserModel.findByIdAndUpdate(_id, rest).lean()
             if (!data) {
-                result.errmsg = "User not found!"
+                result.errmsg = USER.USER_NOT_FOUND
                 return result
             } else {
                 result.data = data
@@ -72,7 +75,7 @@ module.exports = {
         try {
             const data = await UserModel.findByIdAndUpdate(id, { isDeleted: true }).lean()
             if (!data) {
-                result.errmsg = "Something went wrong try again !"
+                result.errmsg = USER.SOME_ERROR_OCCURRED
                 return result
             } else {
                 result = []
