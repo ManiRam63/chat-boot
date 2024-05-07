@@ -3,7 +3,7 @@ chat-boot
 
 # Project Description
 
-This project is related to room chat with verify user and an anonymous user and have a public room and private room 
+This project is related to room chat with verify user and an anonymous user and have a public room and private room with **socket.io**
 
 ---
 ## Requirements
