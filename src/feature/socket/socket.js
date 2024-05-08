@@ -2,12 +2,14 @@ const socketIO = require('socket.io');
 const ChatService = require('../../feature/chat/chat.Service');
 let io;
 function initialize(server) {
-    io = socketIO(server);
+    io = socketIO(server,{ cors: { origin: true } });
     io.on('connection', (socket) => {
-        console.log('A user connected');
-        socket.on('join_room', (roomId) => {
-            socket.join(roomId.roomId);
+        console.log('A user connected' , socket?.id);
+        socket.on('join_room', (dataObje) => {
+            const room =  JSON.parse(dataObje)
+            socket.join(room.roomId);
         });
+
         /**
          * @description: this socket is used to  send messages to the user's room
          */
@@ -20,11 +22,15 @@ function initialize(server) {
             }
             messageObj.isNotSeen = memberList
             await ChatService.createChat(messageObj)
-            io.to(message.roomId).emit('receive_message', message);
+            socket.broadcast.to(messageObj?.roomId).emit('receive_message', {
+                msg: messageObj?.message
+            });
+            io.to(message.roomId).emit('receive_message', messageObj);
         })
+
         socket.on('seen_message', async (message) => {
             const messageObj = JSON.parse(message)
-            await ChatService.isSeenMessage(messageObj)
+            await ChatService.isSeenMessage(messageObj) 
         })
         
         socket.on('disconnect', () => {

@@ -49,14 +49,14 @@ module.exports = {
             const { _id, ...rest } = requestObj;
             const data = await RoomModel.findByIdAndUpdate(_id, rest ,  {new: true} ).lean()
             if (!data) {
-                result.errmsg = "Room not found!"
+                result.error = "Room not found!"
                 return result
             } else {
                 result.data = data
                 return result
             }
         } catch (error) {
-            result.errmsg = error?.message
+            result.error = error?.message
             return result
         }
     },
@@ -70,14 +70,14 @@ module.exports = {
         try {
             const data = await RoomModel.findByIdAndUpdate(id, { isDeleted: true }).lean()
             if (!data) {
-                result.errmsg = ROOM.SOMETHIG_WENT_WRONG
+                result.error = ROOM.SOMETHIG_WENT_WRONG
                 return result
             } else {
                 result = []
                 return result
             }
         } catch (error) {
-            result.errmsg = error?.message
+            result.error = error?.message
             return result
         }
     },
@@ -160,7 +160,7 @@ module.exports = {
             result.metaData = metaData
             return result
         } catch (e) {
-            result.errmsg = e?.message
+            result.error = e?.message
             return result
         }
     },
@@ -174,7 +174,7 @@ module.exports = {
             const member = new RoomMembersModel(dataObj);
            const result = await member.save();
            if(!result){
-              result.errmsg = ROOM.SOME_ERROR_OCCURRED
+              result.error = ROOM.SOME_ERROR_OCCURRED
               return result;
            }
            return result;
@@ -272,7 +272,7 @@ module.exports = {
             result = memberList.length ? memberList : []
             return result[0]
         } catch (e) {
-            result.errmsg = e?.message
+            result.error = e?.message
             return result
         }
     },

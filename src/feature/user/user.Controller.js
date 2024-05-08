@@ -1,4 +1,4 @@
-const { errorResponse, successResponse } = require('../../utils/responseIntercepter');
+const { errorResponse, successResponse } = require('../../utils/responseInterceptor');
 const { USER } = require('../../utils/responseMessage');
 const { createUserSchema, updateUserSchema } = require('./user.Schema');
 const userService = require('./user.Service');
@@ -19,9 +19,9 @@ module.exports = {
             }
             const result = await UserService.create(req.body)
 
-            if (result?.errmsg || result?.message) {
+            if (result?.error || result?.message) {
 
-                let message = result.message ? result.message : result?.errmsg ? result?.errmsg : USER.SOME_ERROR_OCCURRED
+                let message = result.message ? result.message : result?.error ? result?.error : USER.SOME_ERROR_OCCURRED
                 return errorResponse(res, message, 401, null)
 
             } else {
@@ -81,8 +81,8 @@ module.exports = {
                 return errorResponse(res, USER.USER_NOT_FOUND, 404, null)
             }
             const result = await userService.updateUser(req.body)
-            if (result?.errmsg) {
-                let message = result?.errmsg ? result?.errmsg : USER.SOME_ERROR_OCCURRED
+            if (result?.error) {
+                let message = result?.error ? result?.error : USER.SOME_ERROR_OCCURRED
                 return errorResponse(res, message, 401, null)
             } else {
                 return successResponse(res, USER.USER_UPDATED_SUCCESSFULLY, 200, result)
@@ -108,8 +108,8 @@ module.exports = {
                 return errorResponse(res, USER.USER_NOT_FOUND, 404, null)
             }
             const result = await userService.deleteUser(id)
-            if (result?.errmsg) {
-                let message = result?.errmsg ? result?.errmsg : USER.SOME_ERROR_OCCURRED
+            if (result?.error) {
+                let message = result?.error ? result?.error : USER.SOME_ERROR_OCCURRED
                 return errorResponse(res, message, 401, null)
             } else {
                 return successResponse(res, USER.USER_DELETED_SUCCESSFULLY, 200, result)

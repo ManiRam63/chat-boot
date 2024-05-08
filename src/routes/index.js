@@ -15,7 +15,7 @@ router.patch('/user',auth , userController.update);
 router.delete('/user/:id', auth , userController.delete);
  //room routes//
  router.delete('/room/deleteMember', auth , roomController.deleteMember);
- router.get('/room/getUserByRoomId', auth , roomController.getUserbyRoomId);
+ router.get('/room/getUserByRoomId', auth , roomController.getUserRoomId);
  router.get('/room', auth, roomController.findAll);
  router.get('/room/:id', auth , roomController.findOne);
  router.post('/room', auth, roomController.create);
