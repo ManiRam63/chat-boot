@@ -118,7 +118,7 @@ module.exports = {
       const aggregation = [
         {
           $match: {
-            roomId: mongoose.Types.ObjectId(roomId),
+            roomId: new ObjectId(roomId),
           },
         },
         {
@@ -177,7 +177,7 @@ module.exports = {
       const aggregation = [
         {
           $match: {
-            roomId: mongoose.Types.ObjectId(roomId),
+            roomId: new ObjectId(roomId),
             isDeleted: false,
           },
         },
@@ -239,7 +239,7 @@ module.exports = {
   isSeenMessage: async (messageObj) => {
     try {
       const result = await ChatModel.updateMany(
-        { roomId: mongoose.Types.ObjectId(messageObj.roomId) },
+        { roomId: new ObjectId(messageObj.roomId) },
         { $pull: { isNotSeen: messageObj?.userId } }
       );
       return result;

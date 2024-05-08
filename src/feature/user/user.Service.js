@@ -106,7 +106,7 @@ module.exports = {
 
             const match = []
             match.push({
-                isDeleted: { $ne: true },
+                isDeleted: false,
             })
             let searchval =''
             if (search) {
