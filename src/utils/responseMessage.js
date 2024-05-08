@@ -19,7 +19,7 @@ module.exports ={
         SOME_ERROR_OCCURRED :"Some error occurred",
         SOME_ERROR_OCCURRED_WHILE_CREATING_USER:"Some error occurred while creating user",
         SOME_ERROR_OCCURRED_ON_DELETING_USER :"Some error occurred while deleting the user",
-        SOME_ERROR_OCCURRED_ON_UPDATEING_USER: " Some error occurred while updateing the user ",
+        SOME_ERROR_OCCURRED_ON_UPDATING_USER: " Some error occurred while updateing the user ",
         USER_ID_REQUIRED :"User ID required"
     },
     ROOM:{

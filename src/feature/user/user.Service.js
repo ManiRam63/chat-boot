@@ -54,14 +54,14 @@ module.exports = {
             const { _id, ...rest } = requestObj;
             const data = await UserModel.findByIdAndUpdate(_id, rest).lean()
             if (!data) {
-                result.errmsg = USER.USER_NOT_FOUND
+                result.error = USER.USER_NOT_FOUND
                 return result
             } else {
                 result.data = data
                 return result
             }
         } catch (error) {
-            result.errmsg = error?.message
+            result.error = error?.message
             return result
         }
     },
@@ -75,14 +75,14 @@ module.exports = {
         try {
             const data = await UserModel.findByIdAndUpdate(id, { isDeleted: true }).lean()
             if (!data) {
-                result.errmsg = USER.SOME_ERROR_OCCURRED
+                result.error = USER.SOME_ERROR_OCCURRED
                 return result
             } else {
                 result = []
                 return result
             }
         } catch (error) {
-            result.errmsg = error?.message
+            result.error = error?.message
             return result
         }
     },
@@ -177,7 +177,7 @@ module.exports = {
             result.metaData = metaData
             return result
         } catch (e) {
-            result.errmsg = e?.message
+            result.error = e?.message
             return result
         }
     }

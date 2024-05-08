@@ -1,4 +1,6 @@
 const jwt = require('jsonwebtoken');
+const logger = require('../utils/logger');
+const filename = "middelware - index.js"
 module.exports = (req, res, next) => {
   try {
     const token = req.headers.authorization.split(' ')[1];
@@ -11,6 +13,7 @@ module.exports = (req, res, next) => {
       next();
     }
   } catch {
+    logger.error('nauthorized or Invalid token' + filename)
     res.status(401).json({ message:'Unauthorized or Invalid token' });
   }
 };
