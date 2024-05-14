@@ -3,13 +3,13 @@ export default {
     es2021: true,
     node: true,
   },
-  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', '.prettier'],
+  extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', '.prettierrc'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     ecmaVersion: 13,
     sourceType: 'module',
   },
-  plugins: ['@typescript-eslint', '.prettier'],
+  plugins: ['@typescript-eslint', '.prettierrc'],
   rules: {
     'no-console': 1,
     'prettier/prettier': 2,
