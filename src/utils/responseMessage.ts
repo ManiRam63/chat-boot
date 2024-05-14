@@ -22,9 +22,10 @@ export const ResponseMessage = {
     SOME_ERROR_OCCURRED_ON_DELETING_USER: 'Some error occurred while deleting the user',
     SOME_ERROR_OCCURRED_ON_UPDATING_USER: ' Some error occurred while updating the user ',
     USER_ID_REQUIRED: 'User ID required',
-    DUPLICATE_EMAIL: 'Email is already exists',
+    DUPLICATE_EMAIL: 'Email is already exist',
     REQUIRED_PAYLOAD: 'Empty payload !',
-    INVALID_ID: 'Invalid Id'
+    INVALID_ID: 'Invalid Id',
+    USERNAME_ALREADY_EXIST: "User name already exist!"
   },
   ROOM: {
     ROOM_CREATED_SUCCESSFULLY: 'Room created successfully',

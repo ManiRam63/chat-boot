@@ -6,9 +6,10 @@ import {
 } from '../../utils/responseHandler/responseHandler';
 import { ResponseMessage } from '../../utils/responseMessage';
 import UserService from './user.service';
-import { IUser } from '../../interface/IUser';
+import { IUser, IUserResponse } from '../../interface/IUser';
+import logger from '../../utils/logger';
 const ResponseMessages = ResponseMessage.USER;
-
+const fileName = 'user.controller.ts'
 /**
  * @description : this function is used to create a new user
  * @param {*} req
@@ -20,21 +21,32 @@ const UserController = {
     try {
       const validate = createUserSchema.validate(req?.body);
       if (validate.error) {
+        logger.error(validate.error.message + fileName, {
+          meta: validate.error
+        });
         return errorResponse(res, validate.error.message, 400);
       }
-      const { email } = req.body;
+      const { email, username } = req.body;
       //to check email is already exist or not //
       const IsExit = await UserService.findByAttribute({ email: email });
       if (IsExit) {
         return errorResponse(res, ResponseMessage.USER.DUPLICATE_EMAIL, 409);
       }
-      const result: IUser = await UserService.create(req.body);
+      // check username already exist or not //
+      const IsExitUsername = await UserService.findByAttribute({ username: username });
+      if (IsExitUsername) {
+        return errorResponse(res, ResponseMessage.USER.USERNAME_ALREADY_EXIST, 409);
+      }
+      const result: IUserResponse = await UserService.create(req.body);
       if (result?.error || result?.message) {
         const message = result.message
           ? result.message
           : result?.error
             ? result?.error
             : ResponseMessages.SOME_ERROR_OCCURRED;
+        logger.error(message + fileName, {
+          meta: result?.error || result.message
+        });
         return errorResponse(res, message, 401);
       } else {
         successResponse(
@@ -45,6 +57,9 @@ const UserController = {
         );
       }
     } catch (error) {
+      logger.error(error.message + fileName, {
+        meta: error
+      });
       errorResponse(res, error.message, 500);
     }
   },
@@ -60,6 +75,9 @@ const UserController = {
       // to check if user id
       const user: IUser = await UserService.findById(req?.params?.id);
       if (!user) {
+        logger.error(ResponseMessage.USER.USER_NOT_FOUND + fileName, {
+          meta: ResponseMessage.USER.USER_NOT_FOUND
+        });
         return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, 404);
       }
       return successResponse(
@@ -69,6 +87,9 @@ const UserController = {
         user
       );
     } catch (error) {
+      logger.error(error.message + fileName, {
+        meta: error
+      });
       return errorResponse(res, error.message, 500);
     }
   },
@@ -81,7 +102,6 @@ const UserController = {
   findAll: async (req: Request, res: Response): Promise<IUser> => {
     try {
       const result = await UserService.list(req?.query);
-      console.log(result);
       return successResponse(
         res,
         ResponseMessage.USER.USER_FETCH_SUCCESSFULLY,
@@ -89,6 +109,9 @@ const UserController = {
         result
       );
     } catch (error) {
+      logger.error(error.message + fileName, {
+        meta: error
+      });
       return errorResponse(res, error.message, 500);
     }
   },
@@ -102,6 +125,9 @@ const UserController = {
       const validate = updateUserSchema.validate(req.body);
       const id = req?.params?.id;
       if (validate.error) {
+        logger.error(validate.error + fileName, {
+          meta: validate.error
+        });
         return errorResponse(res, validate.error.message, 400);
       }
       const user = await UserService.findById(id);
@@ -113,6 +139,9 @@ const UserController = {
         let message = result?.error
           ? result?.error
           : ResponseMessage.USER.SOME_ERROR_OCCURRED;
+        logger.error(message + fileName, {
+          meta: result?.error
+        });
         return errorResponse(res, message, 401);
       } else {
         return successResponse(
@@ -123,6 +152,9 @@ const UserController = {
         );
       }
     } catch (error) {
+      logger.error(error.message + fileName, {
+        meta: error
+      });
       return errorResponse(res, error?.message, 401);
     }
   },
@@ -136,6 +168,9 @@ const UserController = {
     try {
       const id = req?.params?.id;
       if (!id) {
+        logger.error(ResponseMessage.USER.USER_ID_REQUIRED + fileName, {
+          meta: ResponseMessage.USER.USER_ID_REQUIRED
+        });
         return errorResponse(res, ResponseMessage.USER.USER_ID_REQUIRED, 400);
       }
       const user: IUser = await UserService.findById(id);
@@ -147,6 +182,9 @@ const UserController = {
         let message = result?.error
           ? result?.error
           : ResponseMessage.USER.SOME_ERROR_OCCURRED;
+        logger.error(message + fileName, {
+          meta: result?.error
+        });
         return errorResponse(res, message, 401);
       } else {
         return successResponse(
@@ -157,6 +195,9 @@ const UserController = {
         );
       }
     } catch (error) {
+      logger.error(error.message + fileName, {
+        meta: error
+      });
       return errorResponse(res, error?.message, 503);
     }
   }
