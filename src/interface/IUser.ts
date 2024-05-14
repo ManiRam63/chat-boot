@@ -68,5 +68,13 @@ export interface IUserResponse {
   error?: string;
   message?: string;
   _doc?: string;
-
+}
+export interface IUserRestPasswordResponse {
+  message: string;
+  error?: string;
+}
+export interface IUserRestPasswordRequest {
+  email: string;
+  oldPassword: string;
+  newPassword: string;
 }

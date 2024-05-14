@@ -26,3 +26,10 @@ export const updateUserSchema = Joi.object({
   phone: Joi.when('isGuest', { is: false, then: Joi.string().required() }),
   status: Joi.boolean().default(true)
 });
+
+export const userResetPassword = Joi.object({
+  email: Joi.string().email().required(),
+  oldPassword: Joi.string().required(),
+  newPassword: Joi.string().required()
+})
+

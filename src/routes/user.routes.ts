@@ -7,5 +7,6 @@ router.get('/:id', auth, validateId, UserController.findOne);
 router.get('/', auth, UserController.findAll);
 router.post('/update/:id', auth, UserController.update);
 router.delete('/:id', auth, validateId, UserController.delete);
+router.post('/resetPassword', UserController.resetPassword);
 
 export default router;

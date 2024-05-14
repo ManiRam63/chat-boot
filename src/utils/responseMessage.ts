@@ -25,7 +25,9 @@ export const ResponseMessage = {
     DUPLICATE_EMAIL: 'Email is already exist',
     REQUIRED_PAYLOAD: 'Empty payload !',
     INVALID_ID: 'Invalid Id',
-    USERNAME_ALREADY_EXIST: "User name already exist!"
+    USERNAME_ALREADY_EXIST: 'User name already exist!',
+    OLD_PASSWORD_NOT_MATCHED: 'Old Password not matched.',
+    PASSWORD_UPDATED_SUCCESSFULLY: 'Password updated successfully'
   },
   ROOM: {
     ROOM_CREATED_SUCCESSFULLY: 'Room created successfully',
