@@ -143,6 +143,25 @@ const RoomService = {
           }
         },
         {
+          $lookup: {
+            from: "users",
+            localField: "createdBy",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        {
+          $unwind: {
+            path: "$user",
+          },
+        },
+        {
+          $project: {
+            "user.password": 0,
+            __v: 0,
+          },
+        },
+        {
           $facet: {
             metadata: [
               {
