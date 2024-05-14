@@ -9,6 +9,8 @@ import UserService from './user.service';
 import { IUser, IUserResponse, IUserRestPasswordResponse } from '../../interface/IUser';
 import logger from '../../utils/logger';
 import bcrypt from 'bcrypt';
+import { STATES } from 'mongoose';
+import { STATUSCODE } from '../../utils/statusCode';
 const ResponseMessages = ResponseMessage.USER;
 const fileName = 'user.controller.ts'
 /**
@@ -25,18 +27,18 @@ const UserController = {
         logger.error(validate.error.message + fileName, {
           meta: validate.error
         });
-        return errorResponse(res, validate.error.message, 400);
+        return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const { email, username } = req.body;
       //to check email is already exist or not //
       const IsExit = await UserService.findByAttribute({ email: email });
       if (IsExit) {
-        return errorResponse(res, ResponseMessage.USER.DUPLICATE_EMAIL, 409);
+        return errorResponse(res, ResponseMessage.USER.DUPLICATE_EMAIL, STATUSCODE.BadRequest);
       }
       // check username already exist or not //
       const IsExitUsername = await UserService.findByAttribute({ username: username });
       if (IsExitUsername) {
-        return errorResponse(res, ResponseMessage.USER.USERNAME_ALREADY_EXIST, 409);
+        return errorResponse(res, ResponseMessage.USER.USERNAME_ALREADY_EXIST, STATUSCODE.BadRequest);
       }
       const result: IUserResponse = await UserService.create(req.body);
       if (result?.error || result?.message) {
@@ -48,7 +50,7 @@ const UserController = {
         logger.error(message + fileName, {
           meta: result?.error || result.message
         });
-        return errorResponse(res, message, 401);
+        return errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
         successResponse(
           res,
@@ -61,7 +63,7 @@ const UserController = {
       logger.error(error.message + fileName, {
         meta: error
       });
-      errorResponse(res, error.message, 500);
+      errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
 
@@ -79,19 +81,19 @@ const UserController = {
         logger.error(ResponseMessage.USER.USER_NOT_FOUND + fileName, {
           meta: ResponseMessage.USER.USER_NOT_FOUND
         });
-        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
       }
       return successResponse(
         res,
         ResponseMessage.USER.USER_FETCH_SUCCESSFULLY,
-        200,
+        STATUSCODE.OK,
         user
       );
     } catch (error) {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error.message, 500);
+      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
 
@@ -106,14 +108,14 @@ const UserController = {
       return successResponse(
         res,
         ResponseMessage.USER.USER_FETCH_SUCCESSFULLY,
-        200,
+        STATUSCODE.OK,
         result
       );
     } catch (error) {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error.message, 500);
+      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -129,11 +131,11 @@ const UserController = {
         logger.error(validate.error + fileName, {
           meta: validate.error
         });
-        return errorResponse(res, validate.error.message, 400);
+        return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const user = await UserService.findById(id);
       if (!user) {
-        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
       }
       const result = await UserService.updateUser(id, req.body);
       if (result?.error) {
@@ -143,7 +145,7 @@ const UserController = {
         logger.error(message + fileName, {
           meta: result?.error
         });
-        return errorResponse(res, message, 401);
+        return errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
         return successResponse(
           res,
@@ -156,7 +158,7 @@ const UserController = {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error?.message, 401);
+      return errorResponse(res, error?.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -172,11 +174,11 @@ const UserController = {
         logger.error(ResponseMessage.USER.USER_ID_REQUIRED + fileName, {
           meta: ResponseMessage.USER.USER_ID_REQUIRED
         });
-        return errorResponse(res, ResponseMessage.USER.USER_ID_REQUIRED, 400);
+        return errorResponse(res, ResponseMessage.USER.USER_ID_REQUIRED, STATUSCODE.BadRequest);
       }
       const user: IUser = await UserService.findById(id);
       if (!user) {
-        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
       }
       const result = await UserService.deleteUser(id);
       if (result?.error) {
@@ -186,12 +188,12 @@ const UserController = {
         logger.error(message + fileName, {
           meta: result?.error
         });
-        return errorResponse(res, message, 401);
+        return errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
         return successResponse(
           res,
           ResponseMessage.USER.USER_DELETED_SUCCESSFULLY,
-          200,
+          STATUSCODE.OK,
           result
         );
       }
@@ -199,7 +201,7 @@ const UserController = {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error?.message, 503);
+      return errorResponse(res, error?.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -216,7 +218,7 @@ const UserController = {
         logger.error(validate.error + fileName, {
           meta: validate.error
         });
-        return errorResponse(res, validate.error.message, 400);
+        return errorResponse(res, validate.error.message, STATUSCODE.NotFound);
       }
       const { email, oldPassword } = req.body
       const user: IUser = await UserService.findByAttribute({ email: email });
@@ -224,7 +226,7 @@ const UserController = {
         logger.error(ResponseMessage.USER.USER_NOT_FOUND + fileName, {
           meta: ResponseMessage.USER.USER_NOT_FOUND
         });
-        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
       }
       // To check old password is match or not //
       const isMatched: boolean = await bcrypt.compare(oldPassword, user.password);
@@ -232,7 +234,7 @@ const UserController = {
         logger.error(ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED + fileName, {
           meta: ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED
         });
-        return errorResponse(res, ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED, 404);
+        return errorResponse(res, ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED, STATUSCODE.BadRequest);
       }
       await UserService.resetPassword(req.body);
       return successResponse(
@@ -245,7 +247,7 @@ const UserController = {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error.message, 500);
+      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
 };

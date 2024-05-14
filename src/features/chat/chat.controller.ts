@@ -6,6 +6,7 @@ import { RoomChatSchema } from './chat.schema';
 import ChatService from './chat.service';
 import { IUserChat } from '../../interface/IUserChat';
 import { IUserChatRes } from '../../interface/IUserChatRes';
+import { STATUSCODE } from '../../utils/statusCode';
 const logger = require('../../utils/logger');
 const filename = 'chat.Controller.js';
 const ChatController = {
@@ -16,15 +17,15 @@ const ChatController = {
         logger.error(validate.error + filename, {
           meta: validate.error
         });
-        return errorResponse(res, validate.error.message, 400);
+        return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const { roomId } = req.body;
       const room = await RoomService.findById(roomId);
       if (!room) {
         logger.error(ResponseMessage.ROOM.ROOM_NOT_FOUND + filename, {
-          meta: validate.error
+          meta: ResponseMessage.ROOM.ROOM_NOT_FOUND
         });
-        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, STATUSCODE.NotFound);
       }
       const result = await ChatService.userChat(req.body);
       if (result?.error) {
@@ -32,13 +33,13 @@ const ChatController = {
         logger.error(message + filename, {
           meta: result?.error
         });
-        return errorResponse(res, message, 401);
+        return errorResponse(res, message, STATUSCODE.BadRequest);
       } else {
-        return successResponse(res, ResponseMessage.CHAT.CHAT_FETCH_SUCCESSFULLY, 200, result);
+        return successResponse(res, ResponseMessage.CHAT.CHAT_FETCH_SUCCESSFULLY, STATUSCODE.OK, result);
       }
     } catch (error) {
       logger.error(error?.message + filename, { meta: error });
-      return errorResponse(res, error.message, 500);
+      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
 
@@ -50,10 +51,10 @@ const ChatController = {
   findAll: async (req: Request, res: Response): Promise<IUserChatRes> => {
     try {
       const result: IUserChatRes = await RoomService.list(req?.query);
-      return successResponse(res, ResponseMessage.ROOM.ROOM_FETCH_SUCCESSFULLY, 200, result);
+      return successResponse(res, ResponseMessage.ROOM.ROOM_FETCH_SUCCESSFULLY, STATUSCODE.OK, result);
     } catch (error) {
       logger.error(error?.message + filename, { meta: error });
-      return errorResponse(res, error.message, 500);
+      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   }
 };

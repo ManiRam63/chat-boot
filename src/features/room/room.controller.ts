@@ -9,6 +9,7 @@ import UserService from '../user/user.service';
 import { IRoom, IUserQuery } from '../../interface/IRoom';
 import { IRoomMember } from '../../interface/IRoomMember';
 import mongoose, { ObjectId } from 'mongoose';
+import { STATUSCODE } from '../../utils/statusCode';
 const fileName = 'room.Controller.js';
 const RoomController = {
   /**
@@ -63,10 +64,10 @@ const RoomController = {
   findAll: async (req: Request, res: Response): Promise<IRoom> => {
     try {
       const result: IRoom = await RoomService.list(req?.query);
-      return successResponse(res, ResponseMessage.ROOM.ROOM_FETCH_SUCCESSFULLY, 200, result);
+      return successResponse(res, ResponseMessage.ROOM.ROOM_FETCH_SUCCESSFULLY, STATUSCODE.OK, result);
     } catch (error) {
       logger.error(error?.message + fileName, { meta: error });
-      return errorResponse(res, error.message, 500);
+      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -81,12 +82,12 @@ const RoomController = {
       const room = await RoomService.findById(id);
       if (!room) {
         logger.error(ResponseMessage.ROOM.ROOM_NOT_FOUND + fileName, { meta: ResponseMessage.ROOM.ROOM_NOT_FOUND });
-        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, STATUSCODE.NotFound);
       }
-      return successResponse(res, ResponseMessage.ROOM.ROOM_FETCH_SUCCESSFULLY, 200, room);
+      return successResponse(res, ResponseMessage.ROOM.ROOM_FETCH_SUCCESSFULLY, STATUSCODE.OK, room);
     } catch (error) {
       logger.error(error.message + fileName, { meta: error });
-      return errorResponse(res, error.message, 500);
+      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -100,24 +101,24 @@ const RoomController = {
       const validate = updateRoomSchema.validate(req.body);
       if (validate.error) {
         logger.error(validate.error + fileName, { meta: validate.error });
-        return errorResponse(res, validate.error.message, 400);
+        return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const room = await RoomService.findById(req.body._id);
       if (!room) {
         logger.error(ResponseMessage.ROOM.ROOM_NOT_FOUND + fileName, { meta: ResponseMessage.ROOM.ROOM_NOT_FOUND });
-        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, STATUSCODE.NotFound);
       }
       const result = await RoomService.updateRoom(req.body);
       if (result?.error) {
         let message = result?.error ? result?.error : ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
         logger.error(message + fileName, { meta: result?.error });
-        return errorResponse(res, message, 401);
+        return errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
-        return successResponse(res, ResponseMessage.ROOM.ROOM_UPDATED_SUCCESSFULLY, 200, result.data);
+        return successResponse(res, ResponseMessage.ROOM.ROOM_UPDATED_SUCCESSFULLY, STATUSCODE.OK, result.data);
       }
     } catch (error) {
       logger.error(error?.message + fileName, { meta: error });
-      return errorResponse(res, error?.message, 401);
+      return errorResponse(res, error?.message, STATUSCODE.BadRequest);
     }
   },
   /**
@@ -130,23 +131,23 @@ const RoomController = {
     try {
       const id = new mongoose.Types.ObjectId(req?.params?.id);
       if (!id) {
-        return errorResponse(res, ResponseMessage.ROOM.ROOM_ID_REQUIRED, 400);
+        return errorResponse(res, ResponseMessage.ROOM.ROOM_ID_REQUIRED, STATUSCODE.BadRequest);
       }
       const room = await RoomService.findById(id);
       if (!room) {
-        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, STATUSCODE.NotFound);
       }
       const result = await RoomService.deleteRoom(id);
       if (result?.error) {
         let message = result?.error ? result?.error : ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
         logger.error(message + fileName, { meta: result?.error });
-        return errorResponse(res, message, 401);
+        return errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
-        return successResponse(res, ResponseMessage.ROOM.ROOM_DELETED_SUCCESSFULLY, 200, result);
+        return successResponse(res, ResponseMessage.ROOM.ROOM_DELETED_SUCCESSFULLY, STATUSCODE.MovedPermanently, result);
       }
     } catch (error) {
       logger.error(error?.message + fileName, { meta: error });
-      return errorResponse(res, error?.message, 503);
+      return errorResponse(res, error?.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -160,14 +161,14 @@ const RoomController = {
       const validate = updateMemberSchema.validate(req.body);
       if (validate.error) {
         logger.error(validate.error + fileName, { meta: validate });
-        return errorResponse(res, validate.error.message, 400);
+        return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const { roomId, users } = req.body;
       let notFound = [];
       let count = 0;
       const room = await RoomService.findById(roomId);
       if (!room) {
-        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, STATUSCODE.NotFound);
       }
 
       for (const id of users) {
@@ -187,14 +188,14 @@ const RoomController = {
         }
       }
       if (notFound.length > 0) {
-        return successResponse(res, ResponseMessage.ROOM.ROOM_USER_ADDED_PARTIALLY, 207, null);
+        return successResponse(res, ResponseMessage.ROOM.ROOM_USER_ADDED_PARTIALLY, STATUSCODE.PartiallySuccessful, null);
       }
       if (users.length === count) {
-        return successResponse(res, ResponseMessage.ROOM.ROOM_USER_ADDED_SUCCESSFULLY, 200, null);
+        return successResponse(res, ResponseMessage.ROOM.ROOM_USER_ADDED_SUCCESSFULLY, STATUSCODE.OK, null);
       }
     } catch (error) {
       logger.error(error.message + fileName, { meta: error });
-      return errorResponse(res, error?.message, 401);
+      return errorResponse(res, error?.message, STATUSCODE.BadRequest);
     }
   },
   /**
@@ -208,12 +209,12 @@ const RoomController = {
       const validate = deleteMemberSchema.validate(req.body);
       if (validate.error) {
         logger.error(validate.error + fileName, { meta: validate?.error });
-        return errorResponse(res, validate.error.message, 400);
+        return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const { roomId, userId } = req.body;
       const room = await RoomService.findById(roomId);
       if (!room) {
-        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, STATUSCODE.NotFound);
       }
       const isExistInRoom = await RoomService.findMemberInRoom({
         roomId: roomId,
@@ -221,7 +222,7 @@ const RoomController = {
       });
 
       if (!isExistInRoom) {
-        return errorResponse(res, ResponseMessage.ROOM.ROOM_AND_USER_COMBINATION, 404);
+        return errorResponse(res, ResponseMessage.ROOM.ROOM_AND_USER_COMBINATION, STATUSCODE.BadRequest);
       }
       const result = await RoomService.deleteMemberFromRoom({
         roomId: roomId,
@@ -231,13 +232,13 @@ const RoomController = {
       if (result?.error) {
         let message = result?.error ? result?.error : ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
         logger.error(message + fileName, { meta: result?.error });
-        return errorResponse(res, message, 401);
+        return errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
-        return successResponse(res, ResponseMessage.ROOM.ROOM_USER_DELETED_SUCCESSFULLY, 200, result);
+        return successResponse(res, ResponseMessage.ROOM.ROOM_USER_DELETED_SUCCESSFULLY, STATUSCODE.OK, result);
       }
     } catch (error) {
       logger.error(error.message + fileName, { meta: error });
-      return errorResponse(res, error?.message, 503);
+      return errorResponse(res, error?.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -251,22 +252,22 @@ const RoomController = {
       const validate = getUserSchema.validate(req.query);
       if (validate.error) {
         logger.error(validate.error + fileName, { meta: validate.error });
-        return errorResponse(res, validate.error.message, 400);
+        return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const roomId = new mongoose.Types.ObjectId(req?.query?.roomId);
       const room: IRoomMember = await RoomService.findById(roomId);
       if (!room) {
-        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, 404);
+        return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, STATUSCODE.NotFound);
       }
       const users = await RoomService.findMemberOfRoom(req.query);
       if (!users) {
-        return successResponse(res, ResponseMessage.USER.USER_FETCH_SUCCESSFULLY, 200, []);
+        return successResponse(res, ResponseMessage.USER.USER_FETCH_SUCCESSFULLY, STATUSCODE.OK, []);
       } else {
-        return successResponse(res, ResponseMessage.USER.USER_FETCH_SUCCESSFULLY, 200, users);
+        return successResponse(res, ResponseMessage.USER.USER_FETCH_SUCCESSFULLY, STATUSCODE.OK, users);
       }
     } catch (error) {
       logger.error(error.message + fileName, { meta: error });
-      return errorResponse(res, error?.message, 503);
+      return errorResponse(res, error?.message, STATUSCODE.InternalServerError);
     }
   }
 };
