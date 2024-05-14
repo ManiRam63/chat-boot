@@ -10,7 +10,7 @@ const responseMessage = ResponseMessage.AUTH;
 
 const AuthController = {
   /**
-   * @description : this function is used to signIn user
+   * @description : This function is used to signIn user
    * @param req
    * @param res
    * @returns

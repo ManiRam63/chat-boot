@@ -13,7 +13,9 @@ const ChatController = {
     try {
       const validate = RoomChatSchema.validate(req.body);
       if (validate.error) {
-        logger.error(validate.error + filename);
+        logger.error(validate.error + filename, {
+          meta: validate.error
+        });
         return errorResponse(res, validate.error.message, 400);
       }
       const { roomId } = req.body;

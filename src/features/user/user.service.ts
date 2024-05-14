@@ -1,7 +1,7 @@
 import UserModel from '../../model/user.model';
 import bcrypt from 'bcrypt';
 import { ResponseMessage } from '../../utils/responseMessage';
-import { IUser, UserData, UserResult } from '../../interface/IUser';
+import { IUser, IUserResponse, UserData, UserResult } from '../../interface/IUser';
 import { IMetaData } from '../../interface/IRoom';
 import { QueryOptions } from 'mongoose';
 const responseMessage = ResponseMessage.USER;
@@ -12,18 +12,18 @@ const salt: string = bcrypt.genSaltSync(16);
  * @returns : user response with data records
  */
 const UserService = {
-  create: async (data: UserData): Promise<IUser | Error> => {
+  create: async (data: UserData): Promise<IUserResponse> => {
     try {
       const { password } = data;
-      if (password) {
+      if (password && typeof password === 'string') {
         data.password = bcrypt.hashSync(password, salt);
       }
       const user = new UserModel(data);
-      const result: any = await user.save();
-      delete result?.password;
+      let result = await user.save();
+      result = await UserModel.findOne({ _id: result?._id }).lean();
       return result;
     } catch (error) {
-      return error;
+      throw error;
     }
   },
 

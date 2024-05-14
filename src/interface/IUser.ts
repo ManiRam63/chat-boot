@@ -1,7 +1,7 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 export interface IUser {
-  id?: string;
+  _id?: string;
   email?: string;
   username?: string;
   firstname?: string;
@@ -11,7 +11,6 @@ export interface IUser {
   phone?: string;
   password?: string;
   isDeleted?: boolean;
-  _id?: string;
   _doc?: object;
   error?: string;
   message?: string;
@@ -55,4 +54,19 @@ export interface IUserLoginResponse extends IUser {
 }
 export interface IUserSignInResponse extends IUser {
   result?: IUser;
+}
+export interface IUserResponse {
+  _id?: mongoose.Types.ObjectId;
+  email?: string;
+  username?: string;
+  firstname?: string;
+  lastname?: string;
+  isGuest?: boolean;
+  status?: boolean;
+  phone?: string;
+  isDeleted?: boolean;
+  error?: string;
+  message?: string;
+  _doc?: string;
+
 }
