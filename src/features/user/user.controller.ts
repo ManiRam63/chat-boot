@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
-import { createUserSchema, updateUserSchema } from './user.schema';
+import { createUserSchema, updateUserSchema, userResetPassword } from './user.schema';
 import {
   errorResponse,
   successResponse
 } from '../../utils/responseHandler/responseHandler';
 import { ResponseMessage } from '../../utils/responseMessage';
 import UserService from './user.service';
-import { IUser, IUserResponse } from '../../interface/IUser';
+import { IUser, IUserResponse, IUserRestPasswordResponse } from '../../interface/IUser';
 import logger from '../../utils/logger';
+import bcrypt from 'bcrypt';
 const ResponseMessages = ResponseMessage.USER;
 const fileName = 'user.controller.ts'
 /**
@@ -200,7 +201,52 @@ const UserController = {
       });
       return errorResponse(res, error?.message, 503);
     }
-  }
+  },
+  /**
+ * @description : This function is used to reset user password 
+ * @param {*} req
+ * @param {*} res
+ * @returns response message or error response 
+ */
+  resetPassword: async (req: Request, res: Response): Promise<IUserRestPasswordResponse> => {
+    try {
+      // to check if user id
+      const validate = userResetPassword.validate(req.body);
+      if (validate.error) {
+        logger.error(validate.error + fileName, {
+          meta: validate.error
+        });
+        return errorResponse(res, validate.error.message, 400);
+      }
+      const { email, oldPassword } = req.body
+      const user: IUser = await UserService.findByAttribute({ email: email });
+      if (!user) {
+        logger.error(ResponseMessage.USER.USER_NOT_FOUND + fileName, {
+          meta: ResponseMessage.USER.USER_NOT_FOUND
+        });
+        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, 404);
+      }
+      // To check old password is match or not //
+      const isMatched: boolean = await bcrypt.compare(oldPassword, user.password);
+      if (!isMatched) {
+        logger.error(ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED + fileName, {
+          meta: ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED
+        });
+        return errorResponse(res, ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED, 404);
+      }
+      await UserService.resetPassword(req.body);
+      return successResponse(
+        res,
+        ResponseMessage.USER.PASSWORD_UPDATED_SUCCESSFULLY,
+        200,
+        []
+      );
+    } catch (error) {
+      logger.error(error.message + fileName, {
+        meta: error
+      });
+      return errorResponse(res, error.message, 500);
+    }
+  },
 };
-
 export default UserController;

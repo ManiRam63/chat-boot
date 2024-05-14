@@ -13,7 +13,7 @@ const AuthService = {
    * @returns user data with token
    */
   signIn: async (data: { email: string; password: string }): Promise<{ error?: string; result?: IUser }> => {
-    let result: IUser;
+    let result: IUser = {};
     const { email, password } = data;
     try {
       const user: IUser = await UserService.findByAttribute({

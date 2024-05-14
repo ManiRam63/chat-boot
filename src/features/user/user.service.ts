@@ -1,7 +1,7 @@
 import UserModel from '../../model/user.model';
 import bcrypt from 'bcrypt';
 import { ResponseMessage } from '../../utils/responseMessage';
-import { IUser, IUserResponse, UserData, UserResult } from '../../interface/IUser';
+import { IUser, IUserResponse, IUserRestPasswordRequest, IUserRestPasswordResponse, UserData, UserResult } from '../../interface/IUser';
 import { IMetaData } from '../../interface/IRoom';
 import { QueryOptions } from 'mongoose';
 const responseMessage = ResponseMessage.USER;
@@ -165,6 +165,30 @@ const UserService = {
       return { users, metaData };
     } catch (e) {
       result.error = e?.message;
+    }
+  },
+  /**
+   * @description: this function is used to reset password via sending with old password 
+   * @param body 
+   * @returns success response and error 
+   */
+  resetPassword: async (body: IUserRestPasswordRequest): Promise<IUserRestPasswordResponse> => {
+    try {
+      let data: IUser = {};
+      const { email, newPassword } = body
+      if (newPassword && typeof newPassword === 'string') {
+        data.password = bcrypt.hashSync(newPassword, salt);
+      }
+      await UserModel.findOneAndUpdate({ email: email }, {
+        $set: {
+          password: data.password
+        }
+      })
+      return {
+        message: ResponseMessage.USER.PASSWORD_UPDATED_SUCCESSFULLY
+      }
+    } catch (error) {
+      return error
     }
   }
 };
