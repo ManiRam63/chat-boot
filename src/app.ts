@@ -19,7 +19,6 @@ app.get('/', (req, res) => {
   return res.sendFile(path.resolve(__dirname, 'public', 'index.html'));
 });
 initialize(server);
-mongoose.Promise = global.Promise;
 mongoose
   .connect(dbConfig.url, {})
   .then(() => {
@@ -29,7 +28,6 @@ mongoose
     logger.error('Could not connect to the database', {
       meta: err
     });
-    process.exit(1);
   });
 
 server.listen(3006, () => {
