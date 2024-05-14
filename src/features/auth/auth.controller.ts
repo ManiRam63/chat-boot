@@ -2,12 +2,12 @@ import { IUser, IUserSignInResponse } from '../../interface/IUser';
 import logger from '../../utils/logger';
 import { errorResponse, successResponse } from '../../utils/responseHandler/responseHandler';
 import { ResponseMessage } from '../../utils/responseMessage';
+import { STATUSCODE } from '../../utils/statusCode';
 import { loginSchema } from '../auth/auth.schema';
 import AuthService from './auth.service';
 import { Request, Response } from 'express';
 const filename: string = ' :- in auth.controller.js';
 const responseMessage = ResponseMessage.AUTH;
-
 const AuthController = {
   /**
    * @description : This function is used to signIn user
@@ -24,22 +24,22 @@ const AuthController = {
         logger.error(`${errorMessage} ${filename}`, {
           meta: validateResult.error
         });
-        return errorResponse(res, errorMessage, 400);
+        return errorResponse(res, errorMessage, STATUSCODE.BadRequest);
       }
       const result: IUserSignInResponse = await AuthService.signIn(body);
       if (result?.error || result?.message) {
         const message = result.message || result?.error || responseMessage.SOME_ERROR_OCCURRED;
         logger.error(`${message} ${filename}`, {
-          meta: validateResult.error
+          meta: result?.error
         });
-        return errorResponse(res, message, 401);
+        return errorResponse(res, message, STATUSCODE.InternalServerError);
       }
-      return successResponse(res, responseMessage.LOGIN_SUCCESSFULLY, 200, result);
+      return successResponse(res, responseMessage.LOGIN_SUCCESSFULLY, STATUSCODE.OK, result);
     } catch (error) {
       logger.error(`${error.message} ${filename}`, {
         meta: error
       });
-      return errorResponse(res, error.message, 500);
+      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   }
 };

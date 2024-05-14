@@ -2,6 +2,7 @@ import { Server } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import ChatService from '../chat/chat.service';
 import RoomUserService from '../roomUser/roomUsers.service';
+import { STATUSCODE } from '../../utils/statusCode';
 let io;
 export function initialize(server: HttpServer): void {
   io = new Server(server, {
@@ -22,7 +23,7 @@ export function initialize(server: HttpServer): void {
           roomId: roomId,
           userId: userId
         });
-        io.to(roomId).emit('connectToRoomOk', { status: 200, message: 'room joined successfully' });
+        io.to(roomId).emit('connectToRoomOk', { status: STATUSCODE.OK, message: 'room joined successfully' });
       }
 
       io.to(roomId).emit('room_joined', {
