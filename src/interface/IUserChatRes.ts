@@ -1,1 +1,3 @@
-export interface IUserChatRes {}
+export interface IUserChatRes {
+
+}
