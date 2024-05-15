@@ -8,7 +8,7 @@ import { UserRequest } from '../../interface/IUser';
 import UserService from '../user/user.service';
 import { IRoom, IUserQuery } from '../../interface/IRoom';
 import { IRoomMember } from '../../interface/IRoomMember';
-import mongoose, { ObjectId } from 'mongoose';
+import mongoose from 'mongoose';
 import { STATUSCODE } from '../../utils/statusCode';
 const fileName = 'room.Controller.js';
 const RoomController = {
@@ -78,7 +78,7 @@ const RoomController = {
    */
   findOne: async (req: Request, res: Response): Promise<IRoom> => {
     try {
-      let id = new mongoose.Types.ObjectId(req?.params?.id);
+      const id = new mongoose.Types.ObjectId(req?.params?.id);
       const room = await RoomService.findById(id);
       if (!room) {
         logger.error(ResponseMessage.ROOM.ROOM_NOT_FOUND + fileName, { meta: ResponseMessage.ROOM.ROOM_NOT_FOUND });
@@ -110,7 +110,7 @@ const RoomController = {
       }
       const result = await RoomService.updateRoom(req.body);
       if (result?.error) {
-        let message = result?.error ? result?.error : ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
+        const message = result?.error ? result?.error : ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
         logger.error(message + fileName, { meta: result?.error });
         return errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
@@ -139,7 +139,7 @@ const RoomController = {
       }
       const result = await RoomService.deleteRoom(id);
       if (result?.error) {
-        let message = result?.error ? result?.error : ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
+        const message = result?.error ? result?.error : ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
         logger.error(message + fileName, { meta: result?.error });
         return errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
@@ -164,8 +164,8 @@ const RoomController = {
         return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const { roomId, users } = req.body;
-      let notFound = [];
-      let count = 0;
+      const notFound = [];
+      let count: number = 0;
       const room = await RoomService.findById(roomId);
       if (!room) {
         return errorResponse(res, ResponseMessage.ROOM.ROOM_NOT_FOUND, STATUSCODE.NotFound);
@@ -230,7 +230,7 @@ const RoomController = {
       });
 
       if (result?.error) {
-        let message = result?.error ? result?.error : ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
+        const message = result?.error ? result?.error : ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
         logger.error(message + fileName, { meta: result?.error });
         return errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {

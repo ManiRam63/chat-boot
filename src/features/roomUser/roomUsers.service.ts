@@ -1,7 +1,8 @@
 import { IRoomMember } from '../../interface/IRoomMember';
 import logger from '../../utils/logger';
 import { ResponseMessage } from '../../utils/responseMessage';
-import RoomMemberModel from '../../model/roomMember.model';
+import RoomMemberModel from "../../model/roomMember.model";
+import mongoose from 'mongoose';
 const RoomUserService = {
   /**
    * @description: this function is used to to add user to room
@@ -11,7 +12,7 @@ const RoomUserService = {
   addRoomMember: async (attributes: IRoomMember): Promise<{ error?: string; result?: IRoomMember }> => {
     try {
       const user = new RoomMemberModel(attributes);
-      const result: any = await user.save();
+      const result: IRoomMember = await user.save();
       if (!result) {
         return { error: ResponseMessage.ROOM.SOME_ERROR_OCCURRED };
       }
@@ -21,13 +22,18 @@ const RoomUserService = {
       return error;
     }
   },
-  getAllUsers: async (roomId: string): Promise<{ error?: string; result?: IRoomMember }> => {
+  /**
+   * @description: this function is used to get user list 
+   * @param roomId 
+   * @returns 
+   */
+  getAllUsers: async (roomId: mongoose.Types.ObjectId): Promise<{ error?: string; result?: IRoomMember[] }> => {
     try {
-      const users: any = await RoomMemberModel.find({ roomId });
-      if (!users) {
+      const results = await RoomMemberModel.find({ roomId: roomId });
+      if (!results) {
         return { error: ResponseMessage.ROOM.SOME_ERROR_OCCURRED };
       }
-      return users;
+      return { result: results };
     } catch (error) {
       logger.error(error.message, { meta: error });
       return { error: error.message };

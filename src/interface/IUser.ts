@@ -1,19 +1,20 @@
 import { Request } from 'express';
 import mongoose from 'mongoose';
 export interface IUser {
-  _id?: string;
+  _id?: mongoose.Types.ObjectId;
   email?: string;
   username?: string;
   firstname?: string;
   lastname?: string;
   isGuest?: boolean;
-  status?: boolean;
   phone?: string;
   password?: string;
   isDeleted?: boolean;
   _doc?: object;
   error?: string;
   message?: string;
+  code?: number;
+  Response?: Response
 }
 export interface IResponseUser {
   _doc?: IUser;
@@ -62,7 +63,7 @@ export interface IUserResponse {
   firstname?: string;
   lastname?: string;
   isGuest?: boolean;
-  status?: boolean;
+  status?: number;
   phone?: string;
   isDeleted?: boolean;
   error?: string;
@@ -70,11 +71,15 @@ export interface IUserResponse {
   _doc?: string;
 }
 export interface IUserRestPasswordResponse {
-  message: string;
+  message?: string;
   error?: string;
 }
 export interface IUserRestPasswordRequest {
   email: string;
   oldPassword: string;
   newPassword: string;
+}
+export interface IGetUserAuthInfoRequest extends Request {
+  user: IUser,
+  decodedToken?: string
 }

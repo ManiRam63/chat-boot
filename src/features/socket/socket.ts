@@ -4,7 +4,7 @@ import ChatService from '../chat/chat.service';
 import RoomUserService from '../roomUser/roomUsers.service';
 import { STATUSCODE } from '../../utils/statusCode';
 let io;
-export function initialize(server: HttpServer): void {
+export default function initialize(server: HttpServer): void {
   io = new Server(server, {
     cors: { origin: '*' }
     // transports: ['websocket']

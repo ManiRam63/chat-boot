@@ -1,9 +1,11 @@
+import { Request, Response, NextFunction } from 'express';
 import Jwt from 'jsonwebtoken';
 import logger from '../utils/logger';
 import { ResponseMessage } from '../utils/responseMessage';
 import mongoose from 'mongoose';
 import { errorResponse } from '../utils/responseHandler/responseHandler';
 import { STATUSCODE } from '../utils/statusCode';
+import { IGetUserAuthInfoRequest } from '../interface/IUser';
 const filename: string = ' - index.ts';
 /**
  * @description: This function is used to validate the token
@@ -11,7 +13,7 @@ const filename: string = ' - index.ts';
  * @param res
  * @param next
  */
-export function auth(req: any, res: any, next: any): void {
+export function auth(req: IGetUserAuthInfoRequest, res: Response, next: NextFunction): void {
   try {
     const token: string = req.headers.authorization?.split(' ')[1];
     if (!token) {
@@ -20,12 +22,12 @@ export function auth(req: any, res: any, next: any): void {
       });
       throw new Error(ResponseMessage.AUTH.INVALID_CREDENTIALS);
     }
-    const decodedToken: any = Jwt.verify(token, process.env.JWT_SECRET_KEY || '');
-    const userId: string = decodedToken.user?._id;
+    const decodedToken = Jwt.verify(token, process.env.JWT_SECRET_KEY || '') as IGetUserAuthInfoRequest;
+    const userId: mongoose.Types.ObjectId = decodedToken.user?._id;
     if (!userId) {
       errorResponse(res, ResponseMessage.AUTH.USER_NOT_FOUND, STATUSCODE.NotFound);
     } else {
-      req.user = decodedToken.user;
+      req.user = decodedToken?.user;
       next();
     }
   } catch (error) {
@@ -39,7 +41,7 @@ export function auth(req: any, res: any, next: any): void {
  * @param res
  * @param next
  */
-export function validateId(req: any, res: any, next: any): void {
+export function validateId(req: Request, res: Response, next: NextFunction): void {
   try {
     const isValid = mongoose.Types.ObjectId.isValid(req?.params?.id);
     if (!isValid) {

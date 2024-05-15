@@ -1,9 +1,9 @@
 import UserModel from '../../model/user.model';
 import bcrypt from 'bcrypt';
 import { ResponseMessage } from '../../utils/responseMessage';
-import { IUser, IUserResponse, IUserRestPasswordRequest, IUserRestPasswordResponse, UserData, UserResult } from '../../interface/IUser';
+import { IUser, IUserRestPasswordRequest, IUserRestPasswordResponse, UserData, UserResult } from '../../interface/IUser';
 import { IMetaData } from '../../interface/IRoom';
-import { QueryOptions } from 'mongoose';
+import mongoose, { QueryOptions } from 'mongoose';
 const responseMessage = ResponseMessage.USER;
 const salt: string = bcrypt.genSaltSync(16);
 /**
@@ -12,19 +12,16 @@ const salt: string = bcrypt.genSaltSync(16);
  * @returns : user response with data records
  */
 const UserService = {
-  create: async (data: UserData): Promise<IUserResponse> => {
-    try {
-      const { password } = data;
-      if (password && typeof password === 'string') {
-        data.password = bcrypt.hashSync(password, salt);
-      }
-      const user = new UserModel(data);
-      let result = await user.save();
-      result = await UserModel.findOne({ _id: result?._id }).lean();
-      return result;
-    } catch (error) {
-      throw error;
+  create: async (data: UserData): Promise<{ result?: IUser; error?: string }> => {
+
+    const { password } = data;
+    if (password && typeof password === 'string') {
+      data.password = bcrypt.hashSync(password, salt);
     }
+    const user = new UserModel(data);
+    let result: IUser = await user.save();
+    result = await UserModel.findOne({ _id: result?._id }).lean();
+    return result;
   },
 
   /**
@@ -32,7 +29,7 @@ const UserService = {
    * @param : _id
    * @returns : user response with data records
    */
-  findById: async (id: string): Promise<IUser> => {
+  findById: async (id: mongoose.Types.ObjectId): Promise<IUser> => {
     try {
       const user: IUser = await UserModel.findOne({ _id: id }).lean();
       return user;
@@ -61,7 +58,7 @@ const UserService = {
    * @returns : user response with data records
    */
   updateUser: async (
-    id: string,
+    id: mongoose.Types.ObjectId,
     requestObj: IUser
   ): Promise<{ error?: string; result?: IUser }> => {
     try {
@@ -85,8 +82,8 @@ const UserService = {
    * @param : user id
    * @returns : Success and Error Message
    */
-  deleteUser: async (id: string): Promise<UserResult> => {
-    const result: any = {};
+  deleteUser: async (id: mongoose.Types.ObjectId): Promise<{ message?: string, error?: string }> => {
+
     try {
       const data = await UserModel.findByIdAndUpdate(
         { _id: id },
@@ -95,12 +92,13 @@ const UserService = {
         }
       ).lean();
       if (!data) {
-        result.error = responseMessage.SOME_ERROR_OCCURRED;
+        return { error: responseMessage.SOME_ERROR_OCCURRED }
       }
+      return { message: responseMessage.USER_DELETED_SUCCESSFULLY }
     } catch (error) {
-      result.error = error?.message;
+      return { error: error?.message }
     }
-    return result;
+
   },
   /**
    * @description: This function is list of all users
@@ -112,9 +110,8 @@ const UserService = {
   ): Promise<{ users?: UserResult; metaData?: IMetaData; error?: string }> => {
     const { limit = 10, sort, page = 1, search = '', order } = body;
     const offset = limit * (page - 1) || 0;
-    const result: any = {};
     try {
-      const sortObj: any = {};
+      const sortObj = {};
       const orderNum = order === 'asc' ? 1 : -1;
       if (sort) {
         sortObj[sort] = +orderNum;
@@ -122,7 +119,7 @@ const UserService = {
         sortObj['username'] = 1;
       }
 
-      const match: any[] = [{ isDeleted: false }];
+      const match = [];
       let searchVal = '';
       if (search) {
         searchVal = search.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -164,7 +161,7 @@ const UserService = {
       const users = usersList.length ? usersList[0].data : [];
       return { users, metaData };
     } catch (e) {
-      result.error = e?.message;
+      return { error: e?.message }
     }
   },
   /**
@@ -174,7 +171,7 @@ const UserService = {
    */
   resetPassword: async (body: IUserRestPasswordRequest): Promise<IUserRestPasswordResponse> => {
     try {
-      let data: IUser = {};
+      const data: IUser = {};
       const { email, newPassword } = body
       if (newPassword && typeof newPassword === 'string') {
         data.password = bcrypt.hashSync(newPassword, salt);

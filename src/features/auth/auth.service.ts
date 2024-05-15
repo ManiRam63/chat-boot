@@ -4,6 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import logger from '../../utils/logger';
 import { IUser, IUserLoginResponse } from '../../interface/IUser';
+import mongoose from 'mongoose';
 const responseMessage = ResponseMessage.AUTH;
 const filename: string = 'auth.service.js';
 const AuthService = {
@@ -13,7 +14,7 @@ const AuthService = {
    * @returns user data with token
    */
   signIn: async (data: { email: string; password: string }): Promise<{ error?: string; result?: IUser }> => {
-    let result: IUser = {};
+    const result: IUser = {};
     const { email, password } = data;
     try {
       const user: IUser = await UserService.findByAttribute({
@@ -41,7 +42,7 @@ const AuthService = {
       const token: string = jwt.sign(jwtTokenObj, jwtSecretKey, {
         expiresIn: process.env.JWT_EXPIRES_IN
       });
-      const id = user._id;
+      const id: mongoose.Types.ObjectId = user._id;
       const data: IUserLoginResponse = await UserService.findById(id);
       if (!data) {
         result.error = responseMessage.USER_NOT_FOUND;
@@ -60,7 +61,7 @@ const AuthService = {
    * @param _id
    * @returns data Object
    */
-  findById: async (_id: string): Promise<IUser | null> => {
+  findById: async (_id: mongoose.Types.ObjectId): Promise<IUser | null> => {
     try {
       return await UserService.findById(_id);
     } catch (error) {

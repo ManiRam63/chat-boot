@@ -9,8 +9,8 @@ import UserService from './user.service';
 import { IUser, IUserResponse, IUserRestPasswordResponse } from '../../interface/IUser';
 import logger from '../../utils/logger';
 import bcrypt from 'bcrypt';
-import { STATES } from 'mongoose';
-import { STATUSCODE } from '../../utils/statusCode';
+import { STATUSCODE } from "../../utils/statusCode";
+import mongoose from 'mongoose';
 const ResponseMessages = ResponseMessage.USER;
 const fileName = 'user.controller.ts'
 /**
@@ -20,25 +20,26 @@ const fileName = 'user.controller.ts'
  * @returns Success or Failure message
  */
 const UserController = {
-  create: async (req: Request, res: Response): Promise<IUser> => {
+  create: async (req: Request, res: Response): Promise<IUserResponse> => {
     try {
       const validate = createUserSchema.validate(req?.body);
       if (validate.error) {
+
         logger.error(validate.error.message + fileName, {
           meta: validate.error
         });
-        return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
+        errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const { email, username } = req.body;
       //to check email is already exist or not //
       const IsExit = await UserService.findByAttribute({ email: email });
       if (IsExit) {
-        return errorResponse(res, ResponseMessage.USER.DUPLICATE_EMAIL, STATUSCODE.BadRequest);
+        errorResponse(res, ResponseMessage.USER.DUPLICATE_EMAIL, STATUSCODE.BadRequest);
       }
       // check username already exist or not //
       const IsExitUsername = await UserService.findByAttribute({ username: username });
       if (IsExitUsername) {
-        return errorResponse(res, ResponseMessage.USER.USERNAME_ALREADY_EXIST, STATUSCODE.BadRequest);
+        errorResponse(res, ResponseMessage.USER.USERNAME_ALREADY_EXIST, STATUSCODE.BadRequest);
       }
       const result: IUserResponse = await UserService.create(req.body);
       if (result?.error || result?.message) {
@@ -50,12 +51,12 @@ const UserController = {
         logger.error(message + fileName, {
           meta: result?.error || result.message
         });
-        return errorResponse(res, message, STATUSCODE.InternalServerError);
+        errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
-        successResponse(
+        return successResponse(
           res,
           ResponseMessages.USER_CREATED_SUCCESSFULLY,
-          200,
+          STATUSCODE.OK,
           result
         );
       }
@@ -76,12 +77,13 @@ const UserController = {
   findOne: async (req: Request, res: Response): Promise<IUser> => {
     try {
       // to check if user id
-      const user: IUser = await UserService.findById(req?.params?.id);
+      const userId = new mongoose.Types.ObjectId(req?.params?.id)
+      const user: IUser = await UserService.findById(userId);
       if (!user) {
         logger.error(ResponseMessage.USER.USER_NOT_FOUND + fileName, {
           meta: ResponseMessage.USER.USER_NOT_FOUND
         });
-        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
+        errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
       }
       return successResponse(
         res,
@@ -93,7 +95,7 @@ const UserController = {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
+      errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
 
@@ -115,7 +117,7 @@ const UserController = {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
+      errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -126,26 +128,26 @@ const UserController = {
   update: async (req: Request, res: Response): Promise<IUser> => {
     try {
       const validate = updateUserSchema.validate(req.body);
-      const id = req?.params?.id;
+      const id = new mongoose.Types.ObjectId(req?.params?.id);
       if (validate.error) {
         logger.error(validate.error + fileName, {
           meta: validate.error
         });
-        return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
+        errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
       }
       const user = await UserService.findById(id);
       if (!user) {
-        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
+        errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
       }
       const result = await UserService.updateUser(id, req.body);
       if (result?.error) {
-        let message = result?.error
+        const message = result?.error
           ? result?.error
           : ResponseMessage.USER.SOME_ERROR_OCCURRED;
         logger.error(message + fileName, {
           meta: result?.error
         });
-        return errorResponse(res, message, STATUSCODE.InternalServerError);
+        errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
         return successResponse(
           res,
@@ -158,7 +160,7 @@ const UserController = {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error?.message, STATUSCODE.InternalServerError);
+      errorResponse(res, error?.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -169,26 +171,26 @@ const UserController = {
    */
   delete: async (req: Request, res: Response): Promise<IUser> => {
     try {
-      const id = req?.params?.id;
+      const id = new mongoose.Types.ObjectId(req?.params?.id);
       if (!id) {
         logger.error(ResponseMessage.USER.USER_ID_REQUIRED + fileName, {
           meta: ResponseMessage.USER.USER_ID_REQUIRED
         });
-        return errorResponse(res, ResponseMessage.USER.USER_ID_REQUIRED, STATUSCODE.BadRequest);
+        errorResponse(res, ResponseMessage.USER.USER_ID_REQUIRED, STATUSCODE.BadRequest);
       }
       const user: IUser = await UserService.findById(id);
       if (!user) {
-        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
+        errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
       }
       const result = await UserService.deleteUser(id);
       if (result?.error) {
-        let message = result?.error
+        const message = result?.error
           ? result?.error
           : ResponseMessage.USER.SOME_ERROR_OCCURRED;
         logger.error(message + fileName, {
           meta: result?.error
         });
-        return errorResponse(res, message, STATUSCODE.InternalServerError);
+        errorResponse(res, message, STATUSCODE.InternalServerError);
       } else {
         return successResponse(
           res,
@@ -201,7 +203,7 @@ const UserController = {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error?.message, STATUSCODE.InternalServerError);
+      errorResponse(res, error?.message, STATUSCODE.InternalServerError);
     }
   },
   /**
@@ -218,7 +220,7 @@ const UserController = {
         logger.error(validate.error + fileName, {
           meta: validate.error
         });
-        return errorResponse(res, validate.error.message, STATUSCODE.NotFound);
+        errorResponse(res, validate.error.message, STATUSCODE.NotFound);
       }
       const { email, oldPassword } = req.body
       const user: IUser = await UserService.findByAttribute({ email: email });
@@ -226,7 +228,7 @@ const UserController = {
         logger.error(ResponseMessage.USER.USER_NOT_FOUND + fileName, {
           meta: ResponseMessage.USER.USER_NOT_FOUND
         });
-        return errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
+        errorResponse(res, ResponseMessage.USER.USER_NOT_FOUND, STATUSCODE.NotFound);
       }
       // To check old password is match or not //
       const isMatched: boolean = await bcrypt.compare(oldPassword, user.password);
@@ -234,7 +236,7 @@ const UserController = {
         logger.error(ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED + fileName, {
           meta: ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED
         });
-        return errorResponse(res, ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED, STATUSCODE.BadRequest);
+        errorResponse(res, ResponseMessage.USER.OLD_PASSWORD_NOT_MATCHED, STATUSCODE.BadRequest);
       }
       await UserService.resetPassword(req.body);
       return successResponse(
@@ -247,7 +249,7 @@ const UserController = {
       logger.error(error.message + fileName, {
         meta: error
       });
-      return errorResponse(res, error.message, STATUSCODE.InternalServerError);
+      errorResponse(res, error.message, STATUSCODE.InternalServerError);
     }
   },
 };

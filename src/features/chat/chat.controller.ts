@@ -7,7 +7,7 @@ import ChatService from './chat.service';
 import { IUserChat } from '../../interface/IUserChat';
 import { IUserChatRes } from '../../interface/IUserChatRes';
 import { STATUSCODE } from '../../utils/statusCode';
-const logger = require('../../utils/logger');
+import logger from '../../utils/logger';
 const filename = 'chat.Controller.js';
 const ChatController = {
   userChat: async (req: Request, res: Response): Promise<IUserChat> => {
@@ -29,7 +29,7 @@ const ChatController = {
       }
       const result = await ChatService.userChat(req.body);
       if (result?.error) {
-        let message = result?.error || ResponseMessage.CHAT.SOME_ERROR_OCCURRED_ON_CREATING_CHAT;
+        const message = result?.error || ResponseMessage.CHAT.SOME_ERROR_OCCURRED_ON_CREATING_CHAT;
         logger.error(message + filename, {
           meta: result?.error
         });
