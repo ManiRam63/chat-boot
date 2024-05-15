@@ -6,7 +6,7 @@ import mongoose from 'mongoose';
 import dbConfig from './config/index';
 import path from 'path';
 import http from 'http';
-import { initialize } from '../src/features/socket/socket';
+import initialize from './features/socket/socket';
 import logger from './utils/logger';
 dotenv.config();
 const app = express();

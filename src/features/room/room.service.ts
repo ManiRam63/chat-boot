@@ -41,7 +41,7 @@ const RoomService = {
    */
   findByAttribute: async (attributes: IRoom): Promise<IRoom> => {
     try {
-      const room: any = await RoomModel.findOne(attributes).populate('createdBy').lean();
+      const room: IRoom = await RoomModel.findOne(attributes).populate('createdBy').lean();
       return room;
     } catch (error) {
       return error;
@@ -194,7 +194,7 @@ const RoomService = {
   addRoomMember: async (attributes: IRoomMember): Promise<{ error?: string; result?: IRoomMember }> => {
     try {
       const member = new RoomMemberModel(attributes);
-      const result: any = await member.save();
+      const result: IRoomMember = await member.save();
       if (!result) {
         return { error: ResponseMessage.ROOM.SOME_ERROR_OCCURRED };
       }

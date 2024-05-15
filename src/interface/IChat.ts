@@ -1,5 +1,4 @@
 import { Types, Document } from 'mongoose';
-
 export interface IChat {
   _id: Types.ObjectId;
   roomId: Types.ObjectId;
