@@ -10,5 +10,5 @@ export enum STATUSCODE {
     NotFound = 404,
     InternalServerError = 500,
     BadGateway = 502,
-    ServiceUnavailable = 503,
+    ServiceUnavailable = 503
 }

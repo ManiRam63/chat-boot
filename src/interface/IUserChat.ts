@@ -1,4 +1,4 @@
 export interface IUserChat {
-  roomId: string;
-  message?: string;
+    roomId: string;
+    message?: string;
 }
