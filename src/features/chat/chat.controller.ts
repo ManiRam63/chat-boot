@@ -17,9 +17,6 @@ const ChatController = {
         try {
             const validate = RoomChatSchema.validate(req.body);
             if (validate.error) {
-                logger.error(validate.error + filename, {
-                    meta: validate.error
-                });
                 return errorResponse(
                     res,
                     validate.error.message,
@@ -29,9 +26,7 @@ const ChatController = {
             const { roomId } = req.body;
             const room = await RoomService.findById(roomId);
             if (!room) {
-                logger.error(ResponseMessage.ROOM.ROOM_NOT_FOUND + filename, {
-                    meta: ResponseMessage.ROOM.ROOM_NOT_FOUND
-                });
+
                 return errorResponse(
                     res,
                     ResponseMessage.ROOM.ROOM_NOT_FOUND,

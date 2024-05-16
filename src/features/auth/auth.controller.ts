@@ -24,9 +24,6 @@ const AuthController = {
             const validateResult = loginSchema.validate(body);
             if (validateResult.error) {
                 const errorMessage = validateResult.error.message;
-                logger.error(`${errorMessage} ${filename}`, {
-                    meta: validateResult.error
-                });
                 return errorResponse(res, errorMessage, STATUSCODE.BadRequest);
             }
             const result: IUserSignInResponse = await AuthService.signIn(body);

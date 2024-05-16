@@ -1,9 +1,7 @@
 import winston, { format } from 'winston';
 import { MongoDB } from 'winston-mongodb';
-import dotenv from 'dotenv';
-
+import dotenv from "dotenv";
 dotenv.config();
-
 const logger = winston.createLogger({
     level: 'info',
     transports: [
@@ -23,5 +21,5 @@ const logger = winston.createLogger({
         })
     ]
 });
-
 export default logger;
+

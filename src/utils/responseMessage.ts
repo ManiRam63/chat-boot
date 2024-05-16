@@ -45,7 +45,8 @@ export const ResponseMessage = {
         ROOM_ID_REQUIRED: ' Room id required',
         ROOM_USER_DELETED_SUCCESSFULLY: 'Room user deleted successfully',
         SOMETHING_WENT_WRONG: 'Something went wrong please try again',
-        ROOM_NAME_ALREADY_EXIST: 'Room name already exist!'
+        ROOM_NAME_ALREADY_EXIST: 'Room name already exist!',
+        ROOM_JOINED_SUCCESSFULLY: 'User has Joined the room'
     },
     CHAT: {
         CHAT_CREATED_SUCCESSFULLY: 'Chat created successfully',

@@ -3,9 +3,10 @@ import { Server as HttpServer } from 'http';
 import ChatService from '../chat/chat.service';
 import RoomUserService from '../roomUser/roomUsers.service';
 import { STATUSCODE } from '../../utils/statusCode';
-let io;
+import { ResponseMessage } from '../../utils/responseMessage';
+
 export default function initialize(server: HttpServer): void {
-    io = new Server(server, {
+    const io = new Server(server, {
         cors: { origin: '*' }
         // transports: ['websocket']
     });
@@ -25,7 +26,7 @@ export default function initialize(server: HttpServer): void {
                 });
                 io.to(roomId).emit('connectToRoomOk', {
                     status: STATUSCODE.OK,
-                    message: 'room joined successfully'
+                    message: ResponseMessage.ROOM.ROOM_JOINED_SUCCESSFULLY
                 });
             }
 
@@ -36,6 +37,8 @@ export default function initialize(server: HttpServer): void {
             allUsers = await RoomUserService.getAllUsers(roomId);
             io.to(roomId).emit('chatroom_users', allUsers);
         });
+
+
         socket.on('send_message', async (data) => {
             if (!socket.rooms.has(data?.roomId)) {
                 await socket.join(data?.roomId);

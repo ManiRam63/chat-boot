@@ -36,10 +36,7 @@ const RoomController = {
             const userId = new mongoose.Types.ObjectId(req?.user?._id);
             const validate = createRoomSchema.validate(req.body);
             if (validate.error) {
-                logger.error(validate.error + fileName, {
-                    meta: validate.error
-                });
-                return errorResponse(res, validate.error.message, 400);
+                return errorResponse(res, validate.error.message, STATUSCODE.BadRequest);
             }
             // validate the room name already exit or not //
             const attributesObj = {
@@ -63,7 +60,7 @@ const RoomController = {
                 const message =
                     result.error || ResponseMessage.ROOM.SOME_ERROR_OCCURRED;
                 logger.error(message + fileName, { meta: result?.error });
-                return errorResponse(res, message, 401);
+                return errorResponse(res, message, STATUSCODE.BadRequest);
             }
             // add as a member in the room while creating a new room
             await RoomService.addRoomMember({
@@ -78,7 +75,7 @@ const RoomController = {
             );
         } catch (error) {
             logger.error(error?.message + fileName, { meta: error });
-            return errorResponse(res, error.message, 500);
+            return errorResponse(res, error.message, STATUSCODE.InternalServerError);
         }
     },
     /**
@@ -255,7 +252,6 @@ const RoomController = {
         try {
             const validate = updateMemberSchema.validate(req.body);
             if (validate.error) {
-                logger.error(validate.error + fileName, { meta: validate });
                 return errorResponse(
                     res,
                     validate.error.message,
@@ -324,9 +320,6 @@ const RoomController = {
         try {
             const validate = deleteMemberSchema.validate(req.body);
             if (validate.error) {
-                logger.error(validate.error + fileName, {
-                    meta: validate?.error
-                });
                 return errorResponse(
                     res,
                     validate.error.message,
@@ -396,9 +389,6 @@ const RoomController = {
         try {
             const validate = getUserSchema.validate(req.query);
             if (validate.error) {
-                logger.error(validate.error + fileName, {
-                    meta: validate.error
-                });
                 return errorResponse(
                     res,
                     validate.error.message,
